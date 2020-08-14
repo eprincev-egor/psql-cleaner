@@ -336,6 +336,36 @@ describe("RemoveJoins", () => {
                     country.id = companies.id_country
             `
         });
+
+        testCleaner({
+            dirty: `
+                select
+                    country_registration.code
+                from orders
+    
+                left join companies on
+                    companies.id = orders.id_company_client
+
+                left join country as country_factory on
+                    country_factory.id = companies.id_country_factory
+
+                left join country as country_registration on
+                    country_registration.id = companies.id_country_registration
+                
+            `,
+            clean: `
+                select
+                    country_registration.code
+                from orders
+    
+                left join companies on
+                    companies.id = orders.id_company_client
+
+                left join country as country_registration on
+                    country_registration.id = companies.id_country_registration
+                
+            `
+        });
     });
-     
+
 });
