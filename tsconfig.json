@@ -1,0 +1,15 @@
+{
+    "compilerOptions": {
+        "rootDir": "./lib",
+        "outDir": "./dist",
+        "sourceMap": true,
+        "target": "esnext",
+        "module": "commonjs",
+        "esModuleInterop": true,
+        "experimentalDecorators": true,
+        "emitDecoratorMetadata": true,
+        "strict": true,
+        "resolveJsonModule": true
+    },
+    "include": ["lib/**/*.ts"]
+}

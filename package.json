@@ -1,0 +1,51 @@
+{
+  "name": "psql-cleaner",
+  "version": "0.0.0",
+  "description": "removing unused joins and cte from select",
+  "main": "dist/index.js",
+  "scripts": {
+    "test": "nyc --reporter=html --reporter=text-summary mocha",
+    "lint": "tslint lib/**/*.ts && tslint test/**/*.ts",
+    "prepublishOnly": "npm run build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/eprincev-egor/psql-cleaner.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/eprincev-egor/psql-cleaner/issues"
+  },
+  "homepage": "https://github.com/eprincev-egor/psql-cleaner#readme",
+  "dependencies": {
+    "grapeql-lang": "^2.5.4"
+  },
+  "nyc": {
+    "extension": [
+      ".ts"
+    ],
+    "reporter": [
+      "html"
+    ],
+    "all": true,
+    "require": [
+      "ts-node/register",
+      "source-map-support/register"
+    ],
+    "exclude": [
+      "coverage",
+      ".mocharc.js"
+    ]
+  },
+  "devDependencies": {
+    "@types/mocha": "^8.0.2",
+    "@types/node": "^14.0.27",
+    "mocha": "^8.1.1",
+    "nyc": "^15.1.0",
+    "source-map-support": "^0.5.19",
+    "ts-node": "^8.10.2",
+    "typescript": "^3.9.7"
+  }
+}
