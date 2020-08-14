@@ -3,13 +3,13 @@ import { GrapeQLCoach, Select } from "grapeql-lang";
 import { clean } from "../lib/index";
 
 export interface ITest {
-    dirty: string;
+    dirty?: string;
     clean: string;
 }
 
 export function testCleaner(test: ITest) {
     const expectedCleanSQL = test.clean.trim();
-    const actualCleanSQL = clean(test.dirty);
+    const actualCleanSQL = clean(test.dirty || test.clean);
 
     equalSQL(expectedCleanSQL, actualCleanSQL);
 }

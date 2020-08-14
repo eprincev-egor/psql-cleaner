@@ -4,9 +4,9 @@ import {
     Expression, 
     FromItem, 
     Operator, 
-    ColumnLink, 
-    TableLink, 
-    ObjectName 
+    ColumnLink,
+    ObjectName, 
+    TableLink
 } from "grapeql-lang";
 
 export class JoinCleaner {
@@ -30,7 +30,9 @@ function removeDirtyJoins(select: Select, fromItem: FromItem) {
         return;
     }
 
-    for (const join of allJoins) {
+    for (let i = allJoins.length - 1; i >= 0; i--) {
+        const join = allJoins[ i ];
+
         if ( !isDirtyJoin(select, join) ) {
             continue;
         }
@@ -165,11 +167,7 @@ function isColumnFrom(
         return isColumnFromThatAlias;
     }
 
-    const table = fromItem.get("table");
-    if ( !table ) {
-        return false;
-    }
-
+    const table = fromItem.get("table") as TableLink;
     const tableLink = table.get("link") as ObjectName[];
 
     const isColumnFromThatTable = equalTableLinks(
