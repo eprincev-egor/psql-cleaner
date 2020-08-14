@@ -8,7 +8,7 @@ export interface ITest {
 }
 
 export function testCleaner(test: ITest) {
-    const expectedCleanSQL = test.clean;
+    const expectedCleanSQL = test.clean.trim();
     const actualCleanSQL = clean(test.dirty);
 
     equalSQL(expectedCleanSQL, actualCleanSQL);
