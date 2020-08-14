@@ -479,4 +479,27 @@ describe("RemoveJoins", () => {
 
     });
 
+    it("ignore comments", () => {
+        testCleaner({
+            clean: `
+                /* some comment */
+                -- and here
+                select from company
+            `
+        });
+        testCleaner({
+            dirty: `
+                select 
+                    -- country.id
+                from company
+                
+                left join country on country.id = 1
+            `,
+            clean: `
+                select from company
+            `
+        });
+
+    });
+
 });
