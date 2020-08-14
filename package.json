@@ -20,7 +20,7 @@
   },
   "homepage": "https://github.com/eprincev-egor/psql-cleaner#readme",
   "dependencies": {
-    "grapeql-lang": "^2.5.4"
+    "grapeql-lang": "^2.5.5"
   },
   "nyc": {
     "extension": [

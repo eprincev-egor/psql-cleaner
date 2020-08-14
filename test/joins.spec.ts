@@ -75,6 +75,17 @@ describe("RemoveJoins", () => {
                     country.id = company.id_country
             `
         });
+
+        testCleaner({
+            clean: `
+                select
+                    ( country.id * 2 )
+                from company
+    
+                left join country on
+                    country.id = company.id_country
+            `
+        });
     });
     
     it("left join can return more than one row", () => {
@@ -294,5 +305,37 @@ describe("RemoveJoins", () => {
             `
         });
     });
+   
+    it("many joins used in columns clause", () => {
+        testCleaner({
+            clean: `
+                select
+                    country_from.id + country_to.id
+                from company
     
+                left join country as country_from on
+                    country_from.id = orders.id_country_from
+
+                left join country as country_to on
+                    country_to.id = orders.id_country_to
+            `
+        });
+    });
+     
+    it("second join used in columns clause", () => {
+        testCleaner({
+            clean: `
+                select
+                    country.code
+                from orders
+    
+                left join companies on
+                    companies.id = orders.id_company_client
+
+                left join country on
+                    country.id = companies.id_country
+            `
+        });
+    });
+     
 });
