@@ -1,4 +1,4 @@
-import { MainCleaner } from "./MainCleaner";
+import { MainCleaner } from "./clenaers/MainCleaner";
 
 export function clean(selectSQL: string): string {
     const cleaner = new MainCleaner();

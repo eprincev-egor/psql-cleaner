@@ -1,5 +1,5 @@
-import { JoinCleaner } from "./JoinCleaner";
-import { Parser } from "./Parser";
+import { JoinCleaner } from "./join/JoinCleaner";
+import { Parser } from "../Parser";
 
 export class MainCleaner {
     private parser = new Parser();
