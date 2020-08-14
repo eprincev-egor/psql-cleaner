@@ -224,4 +224,75 @@ describe("RemoveJoins", () => {
     });
     
 
+    it("reference in where clause", () => {
+        testCleaner({
+            clean: `
+                select from company
+    
+                left join country on
+                    country.id = company.id_country
+                
+                where
+                    country.id in (1,2,3)
+            `
+        });
+    });
+    
+    it("second join can return more than one row", () => {
+        testCleaner({
+            clean: `
+                select from company
+
+                left join country on
+                    country.id = company.id_country
+
+                left join company as company2 on
+                    company2.id_country = country.id
+            `
+        });
+    });
+    
+
+    it("select *", () => {
+        testCleaner({
+            clean: `
+                select *
+                from company
+    
+                left join country on
+                    country.id = company.id_country
+            `
+        });
+
+        testCleaner({
+            clean: `
+                select country.*
+                from company
+    
+                left join country on
+                    country.id = company.id_country
+            `
+        });
+
+        testCleaner({
+            clean: `
+                select public.country.*
+                from company
+    
+                left join country on
+                    country.id = company.id_country
+            `
+        });
+
+        testCleaner({
+            clean: `
+                select country.*
+                from company
+    
+                left join public.countries as country on
+                    country.id = company.id_country
+            `
+        });
+    });
+    
 });

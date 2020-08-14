@@ -156,9 +156,19 @@ function isColumnFrom(
 ): boolean {
     const alias = fromItem.get("as");
     const columnLink = column.get("link") as ObjectName[];
+    let columnTableLink = columnLink.slice(0, -1);
+
+    if ( column.isStar() ) {
+        // select *
+        if ( columnLink.length === 0 ) {
+            return true;
+        }
+        
+        columnTableLink = columnLink;
+    }
     
     if ( alias ) {
-        if ( columnLink.length !== 2 ) {
+        if ( columnTableLink.length !== 1 ) {
             return false;
         }
 
@@ -173,7 +183,7 @@ function isColumnFrom(
     const tableLink = table.get("link") as ObjectName[];
 
     const isColumnFromThatTable = equalTableLinks(
-        columnLink.slice(0, -1),
+        columnTableLink,
         tableLink
     );
     return isColumnFromThatTable;
