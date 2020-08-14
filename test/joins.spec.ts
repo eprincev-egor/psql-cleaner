@@ -26,6 +26,31 @@ describe("RemoveJoins", () => {
                 select from company
             `
         });
+
+        testCleaner({
+            dirty: `
+                select from company
+    
+                left join country on
+                    country.id = 1
+            `,
+            clean: `
+                select from company
+            `
+        });
+
+
+        testCleaner({
+            dirty: `
+                select from company
+    
+                left join country on
+                    1 = country.id
+            `,
+            clean: `
+                select from company
+            `
+        });
     });
     
     it("unused right join", () => {
@@ -69,6 +94,15 @@ describe("RemoveJoins", () => {
                     company.id = company.id
             `
         });
+
+        testCleaner({
+            clean: `
+                select from company
+    
+                left join country on
+                    company.id = company.id or true
+            `
+        });
     });
     
     it("left join sub query with many rows", () => {
@@ -104,7 +138,7 @@ describe("RemoveJoins", () => {
     });
 
 
-    it("all reference variants", () => {
+    it("all reference name variants", () => {
         testCleaner({
             clean: `
                 select
@@ -119,7 +153,40 @@ describe("RemoveJoins", () => {
         testCleaner({
             clean: `
                 select
+                    Public.country.id
+                from company
+    
+                left join country on
+                    country.id = company.id_country
+            `
+        });
+
+        testCleaner({
+            clean: `
+                select
+                    public.Country.id
+                from company
+    
+                left join country on
+                    country.id = company.id_country
+            `
+        });
+
+        testCleaner({
+            clean: `
+                select
                     my_country.id
+                from company
+    
+                left join country as my_country on
+                    country.id = company.id_country
+            `
+        });
+
+        testCleaner({
+            clean: `
+                select
+                    My_country.id
                 from company
     
                 left join country as my_country on

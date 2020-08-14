@@ -94,22 +94,24 @@ function isConditionByPrimaryKey(join: Join): boolean {
     const isBinaryEqualExpression = (
         elements.length === 3 
         &&
-        leftOperand instanceof ColumnLink 
-        &&
         operator instanceof Operator &&
         operator.get("operator") === "="
         &&
-        rightOperand instanceof ColumnLink
+        (
+            leftOperand instanceof ColumnLink 
+            ||
+            rightOperand instanceof ColumnLink
+        )
     );
     if ( !isBinaryEqualExpression ) {
         return false;
     }
     
-    if ( isColumnFrom(leftOperand, fromItem) ) {
+    if ( leftOperand instanceof ColumnLink && isColumnFrom(leftOperand, fromItem) ) {
         const isPrimaryKey = isIdColumn(leftOperand);
         return isPrimaryKey;
     }
-    else if ( isColumnFrom(rightOperand, fromItem) ) {
+    else if ( rightOperand instanceof ColumnLink && isColumnFrom(rightOperand, fromItem) ) {
         const isPrimaryKey = isIdColumn(rightOperand);
         return isPrimaryKey;
     }
