@@ -1,13 +1,9 @@
 import { 
     Select, 
-    Join, 
-    Expression, 
-    FromItem, 
-    Operator, 
-    ColumnLink,
-    ObjectName, 
-    TableLink
+    Join as JoinSyntax,
+    FromItem
 } from "grapeql-lang";
+import { Join } from "./Join";
 
 export class JoinCleaner {
     clean(dirtySelect: Select): Select {
@@ -16,207 +12,41 @@ export class JoinCleaner {
         const allFromItems = cleanSelect.filterChildrenByInstance(FromItem);
         
         for (const fromItem of allFromItems) {
-            removeDirtyJoins(cleanSelect, fromItem);
+            this.removeDirtyJoins(cleanSelect, fromItem);
         }
 
         return cleanSelect;
     }
-}
 
-function removeDirtyJoins(select: Select, fromItem: FromItem) {
-    const allJoins = fromItem.get("joins");
+    private removeDirtyJoins(select: Select, fromItem: FromItem) {
+        const allJoins = fromItem.get("joins");
 
-    if ( !allJoins || !allJoins.length ) {
-        return;
-    }
-
-    for (let i = allJoins.length - 1; i >= 0; i--) {
-        const join = allJoins[ i ];
-
-        if ( !isDirtyJoin(select, join) ) {
-            continue;
+        if ( !allJoins || !allJoins.length ) {
+            return;
         }
-
-        removeJoin(fromItem, join);
-    }
-}
-
-function isDirtyJoin(select: Select, join: Join) {
-    if ( !isLeftJoin(join) ) {
-        return false;
-    }
-
-    if ( !isConditionByPrimaryKey(join) ) {
-        return false;
-    }
-
-    if ( hasColumnsReferencesToJoin(select, join) ) {
-        return false;
-    }
-
-    return true;
-}
-
-function removeJoin(fromItem: FromItem, dirtyJoin: Join) {
-
-    const allJoins = fromItem.get("joins") as Join[];
-
-    const cleanJoins = allJoins.filter(someJoin =>
-        someJoin !== dirtyJoin
-    );
-
-    fromItem.set({
-        joins: cleanJoins
-    });
-}
-
-function isLeftJoin(join: Join) {
-    const joinType = join.get("type");
-    const isLeft = joinType === "left join";
-    return isLeft;
-}
-
-function isConditionByPrimaryKey(join: Join): boolean {
-    const fromItem = join.get("from") as FromItem;
-
-    const joinedTable = fromItem.get("table");
-    if ( !joinedTable ) {
-        return false;
-    }
-
-    const condition = join.get("on") as Expression;
-    const elements = condition.get("elements") as any[];
-
-    const leftOperand = elements[0];
-    const operator = elements[1];
-    const rightOperand = elements[2];
-
-    const isBinaryEqualExpression = (
-        elements.length === 3 
-        &&
-        operator instanceof Operator &&
-        operator.get("operator") === "="
-        &&
-        (
-            leftOperand instanceof ColumnLink 
-            ||
-            rightOperand instanceof ColumnLink
-        )
-    );
-    if ( !isBinaryEqualExpression ) {
-        return false;
-    }
     
-    if ( leftOperand instanceof ColumnLink && isColumnFrom(leftOperand, fromItem) ) {
-        const isPrimaryKey = isIdColumn(leftOperand);
-        return isPrimaryKey;
+        for (let i = allJoins.length - 1; i >= 0; i--) {
+            const joinSyntax = allJoins[ i ];
+            const join = new Join(joinSyntax);
+    
+            if ( !join.isDirty(select) ) {
+                continue;
+            }
+    
+            this.removeJoin(fromItem, joinSyntax);
+        }
     }
-    else if ( rightOperand instanceof ColumnLink && isColumnFrom(rightOperand, fromItem) ) {
-        const isPrimaryKey = isIdColumn(rightOperand);
-        return isPrimaryKey;
-    }
-    else {
-        return false;
-    }
-}
 
-function isIdColumn(column: ColumnLink) {
-    const columnNameSyntax = column.last() as ObjectName;
-    const columnName = columnNameSyntax.toLowerCase();
-    const isId = columnName === "id";
-    return isId;
-}
+    private removeJoin(fromItem: FromItem, dirtyJoin: JoinSyntax) {
 
+        const allJoins = fromItem.get("joins") as JoinSyntax[];
 
-function hasColumnsReferencesToJoin(select: Select, join: Join): boolean {
-    const allColumnsLinks = select.filterChildrenByInstance(ColumnLink);
-
-    const fromItem = join.get("from") as FromItem;
-    const joinCondition = join.get("on") as Expression;
-
-    const hasReferenceToThatFromItem = allColumnsLinks.some(columnLink => {
-        const isColumnLinkFromJoinCondition = !!joinCondition.findChild(someChild =>
-            someChild === columnLink
+        const cleanJoins = allJoins.filter(someJoin =>
+            someJoin !== dirtyJoin
         );
-        if ( isColumnLinkFromJoinCondition ) {
-            return false;
-        }
 
-        const hasReference = isColumnFrom(columnLink, fromItem);
-        return hasReference;
-    });
-    
-    return hasReferenceToThatFromItem;
-}
-
-
-function isColumnFrom(
-    column: ColumnLink, 
-    fromItem: FromItem
-): boolean {
-    const alias = fromItem.get("as");
-    const columnLink = column.get("link") as ObjectName[];
-    let columnTableLink = columnLink.slice(0, -1);
-
-    if ( column.isStar() ) {
-        // select *
-        if ( columnLink.length === 0 ) {
-            return true;
-        }
-        
-        columnTableLink = columnLink;
-    }
-    
-    if ( alias ) {
-        if ( columnTableLink.length !== 1 ) {
-            return false;
-        }
-
-        const columnTableName = columnLink[0];
-        const isColumnFromThatAlias = (
-            columnTableName.equal(alias)
-        );
-        return isColumnFromThatAlias;
-    }
-
-    const table = fromItem.get("table") as TableLink;
-    const tableLink = table.get("link") as ObjectName[];
-
-    const isColumnFromThatTable = equalTableLinks(
-        columnTableLink,
-        tableLink
-    );
-    return isColumnFromThatTable;
-}
-
-function equalTableLinks(
-    tableLinkA: ObjectName[],
-    tableLinkB: ObjectName[]
-): boolean {
-    const {schema: schemaA, table: tableA} = getSchemaAndTable(tableLinkA);
-    const {schema: schemaB, table: tableB} = getSchemaAndTable(tableLinkB);
-    
-    const isSameTables = (
-        schemaA === schemaB 
-        &&
-        tableA === tableB
-    );
-    return isSameTables;
-}
-
-function getSchemaAndTable(table: ObjectName[]) {
-    if ( table.length === 1 ) {
-        const output = {
-            schema: "public",
-            table: table[0].toLowerCase() as string
-        };
-        return output;
-    }
-    else {
-        const output = {
-            schema: table[0].toLowerCase() as string,
-            table: table[1].toLowerCase() as string
-        };
-        return output;
+        fromItem.set({
+            joins: cleanJoins
+        });
     }
 }
