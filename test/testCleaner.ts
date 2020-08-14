@@ -1,5 +1,4 @@
 import assert from "assert";
-import { GrapeQLCoach, Select } from "grapeql-lang";
 import { clean } from "../lib/index";
 import { Parser } from "../lib/Parser";
 
@@ -16,11 +15,8 @@ export function testCleaner(test: ITest) {
 }
 
 function equalSQL(expectedSQL: string, actualSQL: string) {
-    const expectedCoach = new GrapeQLCoach(expectedSQL);
     const expectedSelect = new Parser().parse(expectedSQL);
-
-    const actualCoach = new GrapeQLCoach(actualSQL);
-    const actualSelect = actualCoach.parse(Select);
+    const actualSelect = new Parser().parse(actualSQL);
 
     assert.deepStrictEqual(
         expectedSelect.toJSON(),
