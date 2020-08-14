@@ -62,6 +62,12 @@ describe("RemoveJoins", () => {
                     country.id = company.id_country
             `
         });
+        testCleaner({
+            clean: `select from company
+    
+                right join (select) as tmp on true
+            `
+        });
     });
     
     it("left join used in columns clause", () => {
@@ -366,6 +372,111 @@ describe("RemoveJoins", () => {
                 
             `
         });
+    });
+
+    it("used in order by", () => {
+        testCleaner({
+            clean: `
+                select from company
+    
+                left join country on
+                    country.id = company.id_country
+                
+                order by country.code desc
+            `
+        });
+
+        testCleaner({
+            clean: `
+                select from company
+    
+                left join country on
+                    country.id = company.id_country
+                
+                order by company.name, (country.code + 1) desc
+            `
+        });
+    });
+
+    it("used in group by", () => {
+        testCleaner({
+            clean: `
+                select from company
+    
+                left join country on
+                    country.id = company.id_country
+                
+                group by country.code
+            `
+        });
+
+        testCleaner({
+            clean: `
+                select from company
+    
+                left join country on
+                    country.id = company.id_country
+                
+                group by cube (company.id, (country.id, 1))
+            `
+        });
+
+        testCleaner({
+            clean: `
+                select from company
+    
+                left join country on
+                    country.id = company.id_country
+                
+                group by rollup (company.id, (country.id, 1))
+            `
+        });
+        testCleaner({
+            clean: `
+                select from company
+    
+                left join country on
+                    country.id = company.id_country
+                
+                group by GROUPING SETS (company.id, country.code)
+            `
+        });
+    });
+
+    it("used in having", () => {
+        testCleaner({
+            clean: `
+                select from company
+    
+                left join country on
+                    country.id = company.id_country
+                
+                group by country.code
+            `
+        });
+
+    });
+
+    it("remove dirty join to sub query", () => {
+        testCleaner({
+            clean: `
+                select from company
+    
+                left join (select) as tmp on true
+            `
+        });
+
+    });
+
+    it("left join to sub query can return more than one row", () => {
+        testCleaner({
+            clean: `
+                select from company
+    
+                left join (select from country) as tmp on true
+            `
+        });
+
     });
 
 });
