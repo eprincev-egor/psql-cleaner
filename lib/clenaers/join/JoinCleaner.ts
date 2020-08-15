@@ -4,21 +4,26 @@ import {
     FromItem
 } from "grapeql-lang";
 import { Join } from "./Join";
+import { UniqueConstraint } from "./UniqueConstraint";
 
 export class JoinCleaner {
-    clean(dirtySelect: Select): Select {
+    clean(dirtySelect: Select, constrains: UniqueConstraint[]): Select {
 
         const cleanSelect = dirtySelect.clone();
         const allFromItems = cleanSelect.filterChildrenByInstance(FromItem);
         
         for (const fromItem of allFromItems) {
-            this.removeDirtyJoins(cleanSelect, fromItem);
+            this.removeDirtyJoins(cleanSelect, fromItem, constrains);
         }
 
         return cleanSelect;
     }
 
-    private removeDirtyJoins(select: Select, fromItem: FromItem) {
+    private removeDirtyJoins(
+        select: Select,
+        fromItem: FromItem,
+        constrains: UniqueConstraint[]
+    ) {
         const allJoins = fromItem.get("joins");
 
         if ( !allJoins || !allJoins.length ) {
@@ -29,7 +34,7 @@ export class JoinCleaner {
             const joinSyntax = allJoins[ i ];
             const join = new Join(joinSyntax);
     
-            if ( !join.isDirty(select) ) {
+            if ( !join.isDirty(select, constrains) ) {
                 continue;
             }
     

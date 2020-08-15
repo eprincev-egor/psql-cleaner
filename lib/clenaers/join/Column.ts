@@ -1,7 +1,9 @@
 import { ObjectName, ColumnLink, FromItem, TableLink } from "grapeql-lang";
+import { Table } from "./Table";
 
 export class Column {
     private hasStar: boolean;
+    private table?: Table;
     private route: ObjectName[];
     private name?: ObjectName;
 
@@ -12,16 +14,20 @@ export class Column {
         if ( !this.hasStar ) {
             this.name = columnLink.last();
         }
-    }
 
-    isId() {
-        if ( !this.name ) {
-            return false;
+        let tableRoute;
+        if ( this.hasStar ) {
+            tableRoute = this.route;
         }
-
-        const columnName = this.name.toLowerCase();
-        const isId = columnName === "id";
-        return isId;
+        else {
+            tableRoute = this.route.slice(0, -1);
+        }
+        if ( tableRoute.length > 0 ) {
+            const tableLink = new TableLink({
+                link: tableRoute
+            });
+            this.table = new Table(tableLink);
+        }
     }
 
     from(fromItem: FromItem) {
@@ -49,45 +55,20 @@ export class Column {
             return isColumnFromThatAlias;
         }
     
-        const table = fromItem.get("table") as TableLink;
-        const tableLink = table.get("link") as ObjectName[];
-    
-        const isColumnFromThatTable = equalTableLinks(
-            columnTableLink,
-            tableLink
-        );
+        const fromTableLink = fromItem.get("table") as TableLink;
+        const fromTable = new Table(fromTableLink);
+
+        const thatTable = this.table as Table;
+        const isColumnFromThatTable = fromTable.equal(thatTable);
         return isColumnFromThatTable;
     }
-}
 
-function equalTableLinks(
-    tableLinkA: ObjectName[],
-    tableLinkB: ObjectName[]
-): boolean {
-    const {schema: schemaA, table: tableA} = getSchemaAndTable(tableLinkA);
-    const {schema: schemaB, table: tableB} = getSchemaAndTable(tableLinkB);
-    
-    const isSameTables = (
-        schemaA === schemaB 
-        &&
-        tableA === tableB
-    );
-    return isSameTables;
-}
+    getName() {
+        if ( !this.name ) {
+            throw new Error("no column name");
+        }
 
-function getSchemaAndTable(table: ObjectName[]) {
-    if ( table.length === 1 ) {
-        const output = {
-            schema: "public",
-            table: table[0].toLowerCase() as string
-        };
-        return output;
-    }
-    else {
-        const output = {
-            schema: table[0].toLowerCase() as string,
-            table: table[1].toLowerCase() as string
-        };
-        return output;
+        const columnName = this.name.toLowerCase() as string;
+        return columnName;
     }
 }

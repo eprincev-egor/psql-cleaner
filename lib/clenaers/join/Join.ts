@@ -7,6 +7,7 @@ import {
 } from "grapeql-lang";
 import { JoinCondition } from "./JoinCondition";
 import { Column } from "./Column";
+import { UniqueConstraint } from "./UniqueConstraint";
 
 export class Join {
     private type: string;
@@ -21,12 +22,12 @@ export class Join {
         this.condition = new JoinCondition(this.from, on);
     }
 
-    isDirty(select: Select) {
+    isDirty(select: Select, constrains: UniqueConstraint[]) {
         if ( !this.isLeft() ) {
             return false;
         }
     
-        if ( !this.condition.isPrimaryKey() ) {
+        if ( !this.condition.isUniqueCondition(constrains) ) {
             return false;
         }
     

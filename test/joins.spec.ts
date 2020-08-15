@@ -502,4 +502,29 @@ describe("RemoveJoins", () => {
 
     });
 
+    it("join by two columns with unique constraint", () => {
+        testCleaner({
+            dirty: `
+                select from orders
+
+                left join companies on
+                    companies.id = orders.id_company_client
+
+                left join rates on
+                    rates.id_company = companies.id and
+                    rates.id_order = orders.id
+                
+            `,
+            clean: `
+                select from orders
+            `,
+            uniqueConstrains: [
+                {
+                    schemaName: "public",
+                    tableName: "rates",
+                    columns: ["id_order", "id_company"]
+                }
+            ]
+        });
+    });
 });
