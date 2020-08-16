@@ -527,4 +527,54 @@ describe("RemoveJoins", () => {
             ]
         });
     });
+
+    it("dirty join to sub query", () => {
+        
+        testCleaner({
+            dirty: `
+                select from orders
+
+                left join lateral (
+                    select 
+                        sum( units.weight ) as total_weight
+                    from units
+
+                    limit 1
+                ) as totals on true
+            `,
+            clean: `
+                select from orders
+            `
+        });
+
+    });
+
+    it("sub query has same name dependencies", () => {
+        
+        testCleaner({
+            dirty: `
+                select from orders
+
+                left join managers on
+                    managers.id = orders.id_manager
+
+                left join lateral (
+                    select 
+                        managers.id
+                    from managers
+                ) as totals on true
+            `,
+            clean: `
+                select from orders
+
+                left join lateral (
+                    select 
+                        managers.id
+                    from managers
+                ) as totals on true
+            `
+        });
+
+    });
+
 });
