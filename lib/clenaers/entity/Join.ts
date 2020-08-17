@@ -73,9 +73,21 @@ export class Join {
             const parentSelect = columnLink.findParentInstance(Select);
             if ( parentSelect !== rootSelect ) {
 
-                const parentFromItem = parentSelect.findParentInstance(FromItem);
-                if ( parentFromItem && !parentFromItem.get("lateral") ) {
+                const parentJoins: JoinSyntax[] = [];
+                parentSelect.findParent((someParent) => {
+                    if ( someParent instanceof JoinSyntax ) {
+                        const parentJoin = someParent;
+                        parentJoins.push(parentJoin);
+                    }
                     return false;
+                });
+                const rootJoin = parentJoins.pop();
+                
+                if ( rootJoin ) {
+                    const rootFromItem = rootJoin.get("from") as FromItem;
+                    if ( !rootFromItem.get("lateral") ) {
+                        return false;
+                    }
                 }
 
                 const sameFrom = findSameFrom(parentSelect, this.from);
@@ -134,20 +146,34 @@ function isSameFromItem(originalFromItem: FromItem, someFromItem: FromItem) {
     return isSameName;
 }
 
-function selectReturnsOnlyOneRow(select: Select) {
+function selectReturnsOnlyOneRow(select: Select): boolean {
     const limit = select.get("limit");
     const hasLimit_1 = limit === "1";
     
     const fromItems = select.get("from");
     const hasFromItems = fromItems && fromItems.length > 0;
 
+    const everyFromItemIsSubQueryWithOnlyOneRow = !!fromItems && fromItems.every(fromItem => {
+        const subQuery = fromItem.get("select");
+        if ( !subQuery ) {
+            return false;
+        }
+        
+        const isSubQueryToOneRow = selectReturnsOnlyOneRow( subQuery );
+        return isSubQueryToOneRow;
+    });
+
     const hasUnion = !!select.get("union");
 
     const returnsOnlyOneRow = (
         // "select ... limit 1"
-        hasLimit_1 ||
+        hasLimit_1 
+        ||
         // "select 1 as x"
         !hasFromItems && !hasUnion
+        ||
+        // select ... from ( select ... limit 1 )
+        everyFromItemIsSubQueryWithOnlyOneRow && !hasUnion
     );
     return returnsOnlyOneRow;
 }
