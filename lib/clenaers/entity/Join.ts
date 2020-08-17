@@ -72,6 +72,12 @@ export class Join {
 
             const parentSelect = columnLink.findParentInstance(Select);
             if ( parentSelect !== rootSelect ) {
+
+                const parentFromItem = parentSelect.findParentInstance(FromItem);
+                if ( parentFromItem && !parentFromItem.get("lateral") ) {
+                    return false;
+                }
+
                 const sameFrom = findSameFrom(parentSelect, this.from);
                 
                 if ( sameFrom ) {

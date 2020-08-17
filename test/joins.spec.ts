@@ -807,5 +807,32 @@ describe("RemoveJoins", () => {
     });
 
 
+    it("test #15", () => {
+        testCleaner({
+            dirty: `
+                select from company
+
+                left join (select * from country limit 1) as country on true
+                    `,
+            clean: `
+                select from company
+                `
+        });
+    });
+
+
+    it("test #16", () => {
+        testCleaner({
+            clean: `
+                select from company
+
+                left join (select * from country limit 1) as country on true
+
+                order by country.id
+                    `
+        });
+    });
+
+
 
 });
