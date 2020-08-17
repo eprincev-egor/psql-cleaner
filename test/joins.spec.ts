@@ -459,10 +459,13 @@ describe("RemoveJoins", () => {
 
     it("remove dirty join to sub query", () => {
         testCleaner({
-            clean: `
+            dirty: `
                 select from company
     
                 left join (select) as tmp on true
+            `,
+            clean: `
+                select from company
             `
         });
 
@@ -664,6 +667,145 @@ describe("RemoveJoins", () => {
                 `
         });
     });
+
+    it("test #9", () => {
+        testCleaner({
+            dirty: `
+                select from public.order as orders
+
+                left join company as company_client on
+                    company_client.id = orders.id_company_client
+
+                left join order_partner_link as partner_link on
+                    partner_link.id_order = orders.id and
+                    company_client.id = partner_link.id_company
+                    `,
+            clean: `
+                select from public.order as orders
+                `,
+            uniqueConstrains: [
+                {
+                    schemaName: "public",
+                    tableName: "order_partner_link",
+                    columns: ["id_order", "id_company"]
+                }
+            ]
+        });
+    });
+
+
+
+    it("test #10", () => {
+        testCleaner({
+            clean: `
+                select
+                    partner_link.*
+                from public.order as orders
+
+                left join company as company_client on
+                    company_client.id = orders.id_company_client
+
+                left join order_partner_link as partner_link on
+                    partner_link.id_order = orders.id and
+                    company_client.id = partner_link.id_company
+                `
+        });
+    });
+
+
+    it("test #11", () => {
+        testCleaner({
+            clean: `
+                select
+                    *
+                from public.order as orders
+
+                left join company as company_client on
+                    company_client.id = orders.id_company_client
+
+                left join order_partner_link as partner_link on
+                    partner_link.id_order = orders.id and
+                    company_client.id = partner_link.id_company
+                `
+        });
+    });
+
+
+    it("test #12", () => {
+        testCleaner({
+            clean: `
+                select
+                    (company_client.id + partner_link.id_order)
+                from public.order as orders
+
+                left join company as company_client on
+                    company_client.id = orders.id_company_client
+
+                left join order_partner_link as partner_link on
+                    partner_link.id_order = orders.id and
+                    company_client.id = partner_link.id_company
+                `
+        });
+    });
+
+
+    it("test #13", () => {
+        testCleaner({
+            clean: `
+                select
+                    (company_client.id + partner_link.id_order + some.one)
+                from public.order as orders
+
+                left join company as company_client on
+                    company_client.id = orders.id_company_client
+
+                left join order_partner_link as partner_link on
+                    partner_link.id_order = orders.id and
+                    company_client.id = partner_link.id_company
+
+                left join lateral (
+                    select
+                        1 as one
+                ) as some on true
+                `
+        });
+    });
+
+
+    it("test #14", () => {
+        testCleaner({
+            dirty: `
+                select
+                    (company_client.id + partner_link.id_order)
+                from public.order as orders
+
+                left join company as company_client on
+                    company_client.id = orders.id_company_client
+
+                left join order_partner_link as partner_link on
+                    partner_link.id_order = orders.id and
+                    company_client.id = partner_link.id_company
+
+                left join lateral (
+                    select
+                        1 as one
+                ) as some on true
+                    `,
+            clean: `
+                select
+                    (company_client.id + partner_link.id_order)
+                from public.order as orders
+
+                left join company as company_client on
+                    company_client.id = orders.id_company_client
+
+                left join order_partner_link as partner_link on
+                    partner_link.id_order = orders.id and
+                    company_client.id = partner_link.id_company
+                `
+        });
+    });
+
 
 
 });

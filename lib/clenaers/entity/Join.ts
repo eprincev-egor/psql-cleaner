@@ -47,7 +47,7 @@ export class Join {
         const subQuery = this.from.get("select");
         
         if ( subQuery ) {
-            if ( !hasLimit1(subQuery) ) {
+            if ( !selectReturnsOnlyOneRow(subQuery) ) {
                 return false;
             }
         }
@@ -128,7 +128,20 @@ function isSameFromItem(originalFromItem: FromItem, someFromItem: FromItem) {
     return isSameName;
 }
 
-function hasLimit1(select: Select) {
+function selectReturnsOnlyOneRow(select: Select) {
     const limit = select.get("limit");
-    return limit === "1";
+    const hasLimit_1 = limit === "1";
+    
+    const fromItems = select.get("from");
+    const hasFromItems = fromItems && fromItems.length > 0;
+
+    const hasUnion = !!select.get("union");
+
+    const returnsOnlyOneRow = (
+        // "select ... limit 1"
+        hasLimit_1 ||
+        // "select 1 as x"
+        !hasFromItems && !hasUnion
+    );
+    return returnsOnlyOneRow;
 }
