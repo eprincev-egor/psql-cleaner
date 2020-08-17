@@ -946,6 +946,145 @@ describe("RemoveJoins", () => {
     });
 
 
+    it("test #22", () => {
+        testCleaner({
+            dirty: `
+                select
+                    company.id in (country.id)
+                from company
+
+                left join (select * from country limit 1) as country on true
+                    `,
+            clean: `
+                select
+                    company.id in (country.id)
+                from company
+
+                left join (select * from country limit 1) as country on true
+                `
+        });
+    });
+
+
+    it("test #23", () => {
+        testCleaner({
+            dirty: `
+                select
+                    company.id between country.id and 2
+                from company
+
+                left join (select * from country limit 1) as country on true
+                    `,
+            clean: `
+                select
+                    company.id between country.id and 2
+                from company
+
+                left join (select * from country limit 1) as country on true
+                `
+        });
+    });
+
+
+    it("test #24", () => {
+        testCleaner({
+            dirty: `
+                select
+                    company.id between 1 and country.id
+                from company
+
+                left join (select * from country limit 1) as country on true
+                    `,
+            clean: `
+                select
+                    company.id between 1 and country.id
+                from company
+
+                left join (select * from country limit 1) as country on true
+                `
+        });
+    });
+
+
+    it("test #25", () => {
+        testCleaner({
+            dirty: `
+                select
+                    (case
+                        when country.id is not null
+                        then 1
+                    end) as some
+                from company
+
+                left join (select * from country limit 1) as country on true
+                    `,
+            clean: `
+                select
+                    (case
+                        when country.id is not null
+                        then 1
+                    end) as some
+                from company
+
+                left join (select * from country limit 1) as country on true
+                `
+        });
+    });
+
+
+    it("test #26", () => {
+        testCleaner({
+            dirty: `
+                select
+                    (case
+                        when true
+                        then 1
+                        else country.id
+                    end) as some
+                from company
+
+                left join (select * from country limit 1) as country on true
+                    `,
+            clean: `
+                select
+                    (case
+                        when true
+                        then 1
+                        else country.id
+                    end) as some
+                from company
+
+                left join (select * from country limit 1) as country on true
+                `
+        });
+    });
+
+
+    it("test #27", () => {
+        testCleaner({
+            dirty: `
+                select
+                    (case
+                        when true
+                        then country.id
+                    end) as some
+                from company
+
+                left join (select * from country limit 1) as country on true
+                    `,
+            clean: `
+                select
+                    (case
+                        when true
+                        then country.id
+                    end) as some
+                from company
+
+                left join (select * from country limit 1) as country on true
+                `
+        });
+    });
+
 
 
 });
