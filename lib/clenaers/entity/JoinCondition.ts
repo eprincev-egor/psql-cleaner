@@ -1,4 +1,4 @@
-import { Expression, Operator, FromItem, ColumnLink, TableLink } from "grapeql-lang";
+import { Expression, Operator, FromItem, ColumnLink, TableLink, Boolean } from "grapeql-lang";
 import { Column } from "./Column";
 import { UniqueConstraint } from "./UniqueConstraint";
 import { Table } from "./Table";
@@ -108,11 +108,20 @@ export class JoinCondition {
             const operator = expressionElements[ i + 1 ];
             const rightOperand = expressionElements[ i + 2 ];
 
-            if ( !isEqualColumnExpression(leftOperand, operator, rightOperand) ) {
-                return false;
+            if ( leftOperand instanceof Boolean ) {
+                i++;
+                
+                if ( leftOperand.get("boolean") !== true ) {
+                    break;
+                }
+            } else {
+                if ( !isEqualColumnExpression(leftOperand, operator, rightOperand) ) {
+                    return false;
+                }
+                
+                i += 3;
             }
-            
-            i += 3;
+
 
             const nextElem = expressionElements[ i ];
             if ( !nextElem ) {
