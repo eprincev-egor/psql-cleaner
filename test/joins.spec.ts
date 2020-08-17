@@ -577,4 +577,1472 @@ describe("RemoveJoins", () => {
 
     });
 
+    it("test #1", () => {
+        testCleaner({
+            dirty: `
+                select from company
+
+    left join country on
+        country.id = company.id_country
+                    `,
+            clean: `
+                select from company
+                `
+        });
+    });
+
+
+    it("test #2", () => {
+        testCleaner({
+            dirty: `
+                select from Company
+
+    left join Country on
+        country.id = company.id_country
+                    `,
+            clean: `
+                select from Company
+                `
+        });
+    });
+
+
+    it("test #3", () => {
+        testCleaner({
+            dirty: `
+                select from company
+
+    left join country on
+        country.id = company.id_country and
+        true
+                    `,
+            clean: `
+                select from company
+                `
+        });
+    });
+
+
+    it("test #4", () => {
+        testCleaner({
+            dirty: `
+                select from company
+
+    left join country on
+        country.id = 1
+                    `,
+            clean: `
+                select from company
+                `
+        });
+    });
+
+
+    it("test #5", () => {
+        testCleaner({
+            dirty: `
+                select from company
+
+    left join country on
+        country.id = (select 1) and
+        true
+                    `,
+            clean: `
+                select from company
+                `
+        });
+    });
+
+
+    it("test #6", () => {
+        testCleaner({
+            clean: `
+            select from company
+
+    left join country on
+        country.id = (select 1) or
+        true
+                `
+        });
+    });
+
+
+    it("test #7", () => {
+        testCleaner({
+            clean: `
+            select from company
+
+    left join country on
+        country.id = company.id_country
+
+    where country.id > 3
+                `
+        });
+    });
+
+
+    it("test #8", () => {
+        testCleaner({
+            clean: `
+            select from company
+
+    left join country on
+        country.id = company.id_country
+
+    left join company as company2 on
+        company2.id_country = country.id
+                `
+        });
+    });
+
+
+    it("test #9", () => {
+        testCleaner({
+            dirty: `
+                select from public.order as orders
+
+    left join company as company_client on
+        company_client.id = orders.id_company_client
+
+    left join order_partner_link as partner_link on
+        partner_link.id_order = orders.id and
+        company_client.id = partner_link.id_company
+                    `,
+            clean: `
+                select from public.order as orders
+                `
+        });
+    });
+
+
+    it("test #10", () => {
+        testCleaner({
+            clean: `
+            select
+        partner_link.*
+    from public.order as orders
+
+    left join company as company_client on
+        company_client.id = orders.id_company_client
+
+    left join order_partner_link as partner_link on
+        partner_link.id_order = orders.id and
+        company_client.id = partner_link.id_company
+                `
+        });
+    });
+
+
+    it("test #11", () => {
+        testCleaner({
+            clean: `
+            select
+        *
+    from public.order as orders
+
+    left join company as company_client on
+        company_client.id = orders.id_company_client
+
+    left join order_partner_link as partner_link on
+        partner_link.id_order = orders.id and
+        company_client.id = partner_link.id_company
+                `
+        });
+    });
+
+
+    it("test #12", () => {
+        testCleaner({
+            clean: `
+            select
+        (company_client.id + partner_link.id_order)
+    from public.order as orders
+
+    left join company as company_client on
+        company_client.id = orders.id_company_client
+
+    left join order_partner_link as partner_link on
+        partner_link.id_order = orders.id and
+        company_client.id = partner_link.id_company
+                `
+        });
+    });
+
+
+    it("test #13", () => {
+        testCleaner({
+            clean: `
+            select
+        (company_client.id + partner_link.id_order + some.one)
+    from public.order as orders
+
+    left join company as company_client on
+        company_client.id = orders.id_company_client
+
+    left join order_partner_link as partner_link on
+        partner_link.id_order = orders.id and
+        company_client.id = partner_link.id_company
+
+    left join lateral (
+        select
+            1 as one
+    ) as some on true
+                `
+        });
+    });
+
+
+    it("test #14", () => {
+        testCleaner({
+            dirty: `
+                select
+        (company_client.id + partner_link.id_order)
+    from public.order as orders
+
+    left join company as company_client on
+        company_client.id = orders.id_company_client
+
+    left join order_partner_link as partner_link on
+        partner_link.id_order = orders.id and
+        company_client.id = partner_link.id_company
+
+    left join lateral (
+        select
+            1 as one
+    ) as some on true
+                    `,
+            clean: `
+                select
+        (company_client.id + partner_link.id_order)
+    from public.order as orders
+
+    left join company as company_client on
+        company_client.id = orders.id_company_client
+
+    left join order_partner_link as partner_link on
+        partner_link.id_order = orders.id and
+        company_client.id = partner_link.id_company
+                `
+        });
+    });
+
+
+    it("test #15", () => {
+        testCleaner({
+            dirty: `
+                select from company
+
+    left join (select * from country limit 1) as country on true
+                    `,
+            clean: `
+                select from company
+                `
+        });
+    });
+
+
+    it("test #16", () => {
+        testCleaner({
+            dirty: `
+                select from company
+
+    left join (select * from country limit 1) as country on true
+
+    order by country.id
+                    `,
+            clean: `
+                select from company
+
+    left join (select id from country limit 1) as country on true
+
+    order by country.id
+                `
+        });
+    });
+
+
+    it("test #17", () => {
+        testCleaner({
+            dirty: `
+                select from company
+
+    left join (select * from country limit 1) as country on true
+
+    group by country.id
+                    `,
+            clean: `
+                select from company
+
+    left join (select id from country limit 1) as country on true
+
+    group by country.id
+                `
+        });
+    });
+
+
+    it("test #18", () => {
+        testCleaner({
+            dirty: `
+                select from company
+
+    left join (select * from country limit 1) as country on true
+
+    group by cube (company.id, (country.id, 1))
+                    `,
+            clean: `
+                select from company
+
+    left join (select id from country limit 1) as country on true
+
+    group by cube (company.id, (country.id, 1))
+                `
+        });
+    });
+
+
+    it("test #19", () => {
+        testCleaner({
+            dirty: `
+                select from company
+
+    left join (select * from country limit 1) as country on true
+
+    group by rollup (company.id, (country.id, 1))
+                    `,
+            clean: `
+                select from company
+
+    left join (select id from country limit 1) as country on true
+
+    group by rollup (company.id, (country.id, 1))
+                `
+        });
+    });
+
+
+    it("test #20", () => {
+        testCleaner({
+            dirty: `
+                select from company
+
+    left join (select * from country limit 1) as country on true
+
+    group by GROUPING SETS (company.id, country.code)
+                    `,
+            clean: `
+                select from company
+
+    left join (select code from country limit 1) as country on true
+
+    group by GROUPING SETS (company.id, country.code)
+                `
+        });
+    });
+
+
+    it("test #21", () => {
+        testCleaner({
+            dirty: `
+                select
+        cast( country.id as bigint )
+    from company
+
+    left join (select * from country limit 1) as country on true
+                    `,
+            clean: `
+                select
+        cast( country.id as bigint )
+    from company
+
+    left join (select id from country limit 1) as country on true
+                `
+        });
+    });
+
+
+    it("test #22", () => {
+        testCleaner({
+            dirty: `
+                select
+        company.id in (country.id)
+    from company
+
+    left join (select * from country limit 1) as country on true
+                    `,
+            clean: `
+                select
+        company.id in (country.id)
+    from company
+
+    left join (select id from country limit 1) as country on true
+                `
+        });
+    });
+
+
+    it("test #23", () => {
+        testCleaner({
+            dirty: `
+                select
+        company.id between country.id and 2
+    from company
+
+    left join (select * from country limit 1) as country on true
+                    `,
+            clean: `
+                select
+        company.id between country.id and 2
+    from company
+
+    left join (select id from country limit 1) as country on true
+                `
+        });
+    });
+
+
+    it("test #24", () => {
+        testCleaner({
+            dirty: `
+                select
+        company.id between 1 and country.id
+    from company
+
+    left join (select * from country limit 1) as country on true
+                    `,
+            clean: `
+                select
+        company.id between 1 and country.id
+    from company
+
+    left join (select id from country limit 1) as country on true
+                `
+        });
+    });
+
+
+    it("test #25", () => {
+        testCleaner({
+            dirty: `
+                select
+        (case
+            when country.id is not null
+            then 1
+        end) as some
+    from company
+
+    left join (select * from country limit 1) as country on true
+                    `,
+            clean: `
+                select
+        (case
+            when country.id is not null
+            then 1
+        end) as some
+    from company
+
+    left join (select id from country limit 1) as country on true
+                `
+        });
+    });
+
+
+    it("test #26", () => {
+        testCleaner({
+            dirty: `
+                select
+        (case
+            when true
+            then 1
+            else country.id
+        end) as some
+    from company
+
+    left join (select * from country limit 1) as country on true
+                    `,
+            clean: `
+                select
+        (case
+            when true
+            then 1
+            else country.id
+        end) as some
+    from company
+
+    left join (select id from country limit 1) as country on true
+                `
+        });
+    });
+
+
+    it("test #27", () => {
+        testCleaner({
+            dirty: `
+                select
+        (case
+            when true
+            then country.id
+        end) as some
+    from company
+
+    left join (select * from country limit 1) as country on true
+                    `,
+            clean: `
+                select
+        (case
+            when true
+            then country.id
+        end) as some
+    from company
+
+    left join (select id from country limit 1) as country on true
+                `
+        });
+    });
+
+
+    it("test #28", () => {
+        testCleaner({
+            dirty: `
+                select
+        coalesce(1, country.id)
+    from company
+
+    left join (select * from country limit 1) as country on true
+                    `,
+            clean: `
+                select
+        coalesce(1, country.id)
+    from company
+
+    left join (select id from country limit 1) as country on true
+                `
+        });
+    });
+
+
+    it("test #29", () => {
+        testCleaner({
+            dirty: `
+                select
+        lower(country.code)
+    from company
+
+    left join (select * from country limit 1) as country on true
+                    `,
+            clean: `
+                select
+        lower(country.code)
+    from company
+
+    left join (select code from country limit 1) as country on true
+                `
+        });
+    });
+
+
+    it("test #30", () => {
+        testCleaner({
+            dirty: `
+                select
+    comp_id.id
+from (select 1 as id) as comp_id
+
+left join company on
+    company.id = comp_id.id
+
+left join lateral (
+    select * from (
+        select
+            russia_country.id as id_country
+        from country as russia_country
+
+        where
+            russia_country.id = 1
+
+    ) as some_table
+) as some_table on true
+                    `,
+            clean: `
+                select
+    comp_id.id
+from (select 1 as id) as comp_id
+
+left join lateral (
+    select 
+    from (
+        select
+        from country as russia_country
+
+        where
+            russia_country.id = 1
+
+    ) as some_table
+) as some_table on true
+                `
+        });
+    });
+
+
+    it("test #31", () => {
+        testCleaner({
+            dirty: `
+                select
+    comp_id.id
+from (select 1 as id) as comp_id
+
+left join company on
+    company.id = comp_id.id
+
+left join lateral (
+    select company.id
+) as some_table on true
+                    `,
+            clean: `
+                select
+    comp_id.id
+from (select 1 as id) as comp_id
+                `
+        });
+    });
+
+
+    it("test #32", () => {
+        testCleaner({
+            clean: `
+            select
+    comp_id.id
+from (select 1 as id) as comp_id
+
+left join company on
+    company.id = comp_id.id
+
+left join lateral (
+    select 
+    from (
+        select
+        from country as russia_country
+
+        where
+            russia_country.id = 1
+
+        union
+
+        select
+            company.id as id_country
+    ) as some_table
+) as some_table on true
+                `
+        });
+    });
+
+
+    it("test #33", () => {
+        testCleaner({
+            dirty: `
+                select
+    comp_id.id
+from (select 1 as id) as comp_id
+
+left join company on
+    company.id = comp_id.id
+
+left join lateral (
+    select * from (
+        select
+            russia_country.id as id_country
+        from country as russia_country
+
+        where
+            russia_country.id = 1
+
+        union
+
+        select
+            company.id as id_country
+    ) as some_table
+
+    limit 1
+) as some_table on true
+                    `,
+            clean: `
+                select
+    comp_id.id
+from (select 1 as id) as comp_id
+                `
+        });
+    });
+
+
+    it("test #34", () => {
+        testCleaner({
+            dirty: `
+                select
+    comp_id.id
+from (select 1 as id) as comp_id
+
+left join company on
+    company.id = comp_id.id
+
+left join lateral (
+    select * from (
+        with
+            test as (
+                select
+                    company.name
+            )
+        select * from test
+    ) as some_table
+) as some_table on true
+                    `,
+            clean: `
+                select
+    comp_id.id
+from (select 1 as id) as comp_id
+
+left join company on
+    company.id = comp_id.id
+
+left join lateral (
+    select 
+    from (
+        with
+            test as (
+                select
+            )
+        select from test
+    ) as some_table
+) as some_table on true
+                `
+        });
+    });
+
+
+    it("test #35", () => {
+        testCleaner({
+            dirty: `
+                select
+    comp_id.id
+from (select 1 as id) as comp_id
+
+left join company on
+    company.id = comp_id.id
+
+left join lateral (
+    select * from (
+        with
+            test as (
+                select
+                    company.name
+            )
+        select * from test
+    ) as some_table
+
+    limit 1
+) as some_table on true
+                    `,
+            clean: `
+                select
+    comp_id.id
+from (select 1 as id) as comp_id
+                `
+        });
+    });
+
+
+    it("test #36", () => {
+        testCleaner({
+            dirty: `
+                select from company
+
+    left join public.order as orders on
+        orders.id_company_client = company.id
+
+    left join lateral (
+        select *
+        from country
+        where
+            country.id in (
+                orders.id_country_start,
+                orders.id_country_end
+            )
+        limit 1
+    ) as country on true
+                    `,
+            clean: `
+                select from company
+
+    left join public.order as orders on
+        orders.id_company_client = company.id
+                `
+        });
+    });
+
+
+    it("test #37", () => {
+        testCleaner({
+            clean: `
+            select CountryEnd.id
+from company
+
+left join country on
+    country.id = company.id_country
+
+left join country as CountryEnd on
+    CountryEnd.id = (select country.id)
+                `
+        });
+    });
+
+
+    it("test #38", () => {
+        testCleaner({
+            dirty: `
+                select from company
+
+left join country on
+    country.id = company.id_country
+
+left join country as CountryEnd on
+    CountryEnd.id = (select country.id)
+                    `,
+            clean: `
+                select from company
+                `
+        });
+    });
+
+
+    it("test #39", () => {
+        testCleaner({
+            dirty: `
+                select CountryEnd.id
+from company
+
+left join country on
+    country.id = company.id_country
+
+left join country as CountryEnd on
+    CountryEnd.id = (
+        select country.id
+        from country
+        limit 1
+    )
+                    `,
+            clean: `
+                select CountryEnd.id
+from company
+
+left join country as CountryEnd on
+    CountryEnd.id = (
+        select country.id
+        from country
+        limit 1
+    )
+                `
+        });
+    });
+
+
+    it("test #40", () => {
+        testCleaner({
+            dirty: `
+                select CountryEnd.id
+from company
+
+left join country on
+    country.id = company.id_country
+
+left join lateral (
+    select *
+    from country
+) as CountryEnd on
+    CountryEnd.id = 1
+                    `,
+            clean: `
+                select CountryEnd.id
+from company
+
+left join lateral (
+    select id
+    from country
+) as CountryEnd on
+    CountryEnd.id = 1
+                `
+        });
+    });
+
+
+    it("test #41", () => {
+        testCleaner({
+            dirty: `
+                select company.id
+from company
+
+left join ./Country on
+    Country.id = company.id_country
+                    `,
+            clean: `
+                select company.id
+from company
+                `
+        });
+    });
+
+
+    it("test #42", () => {
+        testCleaner({
+            clean: `
+            select Country.id
+from company
+
+left join ./Country on
+    Country.id = company.id_country
+                `
+        });
+    });
+
+
+    it("test #43", () => {
+        testCleaner({
+            clean: `
+            select "Country".id
+from company
+
+left join ./Country as "Country" on
+    "Country".id = company.id_country
+                `
+        });
+    });
+
+
+    it("test #44", () => {
+        testCleaner({
+            clean: `
+            select
+    public.order.id,
+    CompanyClient.Country.code as "CompanyClient.Country.code"
+from public.order
+
+left join ./Company as CompanyClient on
+    CompanyClient.id = public.order.id_company_client
+                `
+        });
+    });
+
+
+    it("test #45", () => {
+        testCleaner({
+            dirty: `
+                select
+    public.order.id,
+    CompanyClient.inn as "client_inn"
+from public.order
+
+left join company as CompanyClient on
+    CompanyClient.id = public.order.id_company_client
+
+left join country as "CompanyClient.country" on
+    "CompanyClient.country".id = CompanyClient.id_country
+                    `,
+            clean: `
+                select
+    public.order.id,
+    CompanyClient.inn as "client_inn"
+from public.order
+
+left join company as CompanyClient on
+    CompanyClient.id = public.order.id_company_client
+                `
+        });
+    });
+
+
+    it("test #46", () => {
+        testCleaner({
+            clean: `
+            select country_second.id
+from company
+
+left join country as country_first
+    left join country as country_second
+    on country_second.id = company.id_country + 1
+on country_first.id = company.id_country
+                `
+        });
+    });
+
+
+    it("test #47", () => {
+        testCleaner({
+            dirty: `
+                select
+    public.order.id,
+    CompanyClient.inn as "client_inn"
+from public.order
+
+left join company as CompanyClient on
+    CompanyClient.id = public.order.id_company_client
+
+left join country as "CompanyClient.country" on
+    "CompanyClient.country".id = CompanyClient.id_country
+                    `,
+            clean: `
+                select
+    public.order.id,
+    CompanyClient.inn as "client_inn"
+from public.order
+
+left join company as CompanyClient on
+    CompanyClient.id = public.order.id_company_client
+                `
+        });
+    });
+
+
+    it("test #48", () => {
+        testCleaner({
+            clean: `
+            select string_agg( company.name ) filter (where country.code is not null )
+from company
+
+left join country on
+    country.id = company.id_country
+                `
+        });
+    });
+
+
+    it("test #49", () => {
+        testCleaner({
+            clean: `
+            select string_agg( company.name order by country.code )
+from company
+
+left join country on
+    country.id = company.id_country
+                `
+        });
+    });
+
+
+    it("test #50", () => {
+        testCleaner({
+            clean: `
+            select string_agg( company.name ) within group (order by country.code)
+from company
+
+left join country on
+    country.id = company.id_country
+                `
+        });
+    });
+
+
+    it("test #51", () => {
+        testCleaner({
+            clean: `
+            select
+    row_number() over (order by company.id desc, country.name desc) as index_x
+from company
+
+left join country on
+    country.id = company.id_country
+                `
+        });
+    });
+
+
+    it("test #52", () => {
+        testCleaner({
+            clean: `
+            select
+    row_number() over (partition by company.id, country.name) as index_x
+from company
+
+left join country on
+    country.id = company.id_country
+                `
+        });
+    });
+
+
+    it("test #53", () => {
+        testCleaner({
+            clean: `
+            select
+    row_number() over (test_x) as index_x
+from company
+
+left join country on
+    country.id = company.id_country
+
+window
+    test_x as (order by company.id desc, country.name desc)
+                `
+        });
+    });
+
+
+    it("test #54", () => {
+        testCleaner({
+            clean: `
+            select
+    row_number() over (test_x) as index_x
+from company
+
+left join country on
+    country.id = company.id_country
+
+window
+    test_x as (partition by company.id, country.name)
+                `
+        });
+    });
+
+
+    it("test #55", () => {
+        testCleaner({
+            clean: `
+            select totals.count
+from company
+
+left join country on
+    country.id = company.id_country
+
+left join lateral get_company_totals(
+    country.code
+) as totals on true
+                `
+        });
+    });
+
+
+    it("test #56", () => {
+        testCleaner({
+            clean: `
+            select totals.count
+from company
+
+left join country
+    left join lateral get_company_totals(
+        country.code
+    ) as totals on true
+on country.id = company.id_country
+                `
+        });
+    });
+
+
+    it("test #57", () => {
+        testCleaner({
+            clean: `
+            select next_country.code
+from company
+
+left join country
+    inner join country as next_country
+    on next_country.id = (country.id + 1)
+on country.id = company.id_country
+                `
+        });
+    });
+
+
+    it("test #58", () => {
+        testCleaner({
+            clean: `
+            select *
+from company
+
+left join country
+    inner join country as next_country
+    on next_country.id = (country.id + 1)
+on country.id = company.id_country
+                `
+        });
+    });
+
+
+    it("test #59", () => {
+        testCleaner({
+            clean: `
+            select country.code
+from company
+
+left join country
+    inner join country as next_country
+    on next_country.id = (country.id + 1)
+on country.id = company.id_country
+                `
+        });
+    });
+
+
+    it("test #60", () => {
+        testCleaner({
+            dirty: `
+                select country.code
+from company
+
+left join country
+    left join country as next_country
+    on next_country.id = (country.id + 1)
+on country.id = company.id_country
+                    `,
+            clean: `
+                select country.code
+from company
+
+left join country
+on country.id = company.id_country
+                `
+        });
+    });
+
+
+    it("test #61", () => {
+        testCleaner({
+            dirty: `
+                select company.inn
+from company
+
+left join country
+    inner join country as next_country
+    on next_country.id = (country.id + 1)
+on country.id = company.id_country
+                    `,
+            clean: `
+                select company.inn
+from company
+                `
+        });
+    });
+
+
+    it("test #62", () => {
+        testCleaner({
+            dirty: `
+                select company.inn
+from company
+
+left join country
+    left join country as country2
+    on country2.id = (country.id + 1)
+
+    inner join country as country3
+    on country3.id = (country2.id + 1)
+on country.id = company.id_country
+                    `,
+            clean: `
+                select company.inn
+from company
+                `
+        });
+    });
+
+
+    it("test #63", () => {
+        testCleaner({
+            clean: `
+            select country2.code
+from company
+
+left join country
+    left join country as country2
+    on country2.id = (country.id + 1)
+
+    inner join country as country3
+    on country3.id = (country2.id + 1)
+on country.id = company.id_country
+                `
+        });
+    });
+
+
+    it("test #64", () => {
+        testCleaner({
+            clean: `
+            select country4.code
+from company
+
+left join country
+    left join country as country2
+    on country2.id = (country.id + 1)
+
+    inner join country as country3
+        left join country as country4
+        on country4.id = country2.id
+    on country3.id = (country2.id + 1)
+on country.id = company.id_country
+                `
+        });
+    });
+
+
+    it("test #65", () => {
+        testCleaner({
+            dirty: `
+                select company.id
+from company
+
+left join country
+    left join country as country2
+    on country2.id = (country.id + 1)
+
+    inner join country as country3
+        left join country as country4
+        on country4.id = country2.id
+    on country3.id = (country2.id + 1)
+on country.id = company.id_country
+                    `,
+            clean: `
+                select company.id
+from company
+                `
+        });
+    });
+
+
+    it("test #66", () => {
+        testCleaner({
+            dirty: `
+                select country4.code
+from company
+
+left join country
+    left join country as country2
+    on country2.id = (country.id + 1)
+
+    inner join country as country3
+        left join country as country4
+        on country4.id = country3.id
+    on country3.id = (country3.id + 1)
+on country.id = company.id_country
+                    `,
+            clean: `
+                select country4.code
+from company
+
+left join country
+    inner join country as country3
+        left join country as country4
+        on country4.id = country3.id
+    on country3.id = (country3.id + 1)
+on country.id = company.id_country
+                `
+        });
+    });
+
+
+    it("test #67", () => {
+        testCleaner({
+            clean: `
+            select country4.code
+from company
+
+left join country
+    inner join country as country2
+    on country2.id = (country.id + 1)
+
+    inner join country as country3
+        left join country as country4
+        on country4.id = country3.id
+    on country3.id = (country3.id + 1)
+on country.id = company.id_country
+                `
+        });
+    });
+
+
+    it("test #68", () => {
+        testCleaner({
+            clean: `
+            select test_with_values.*
+from company
+
+left join country on
+    country.id = company.id_country
+
+left join lateral (
+    with x as (
+        values ((
+            select country.id
+        ))
+    )
+    select *
+    from x
+    limit 1
+) as test_with_values on true
+                `
+        });
+    });
+
+
+    it("test #69", () => {
+        testCleaner({
+            dirty: `
+                select company.id
+from company
+
+left join country on
+    country.id = company.id_country
+
+left join lateral (
+    with x as (
+        values ((
+            select country.id
+        ))
+    )
+    select *
+    from x
+    limit 1
+) as test_with_values on true
+                    `,
+            clean: `
+                select company.id
+from company
+                `
+        });
+    });
+
+
+    it("test #70", () => {
+        testCleaner({
+            dirty: `
+                select test_with_values.*
+from company
+
+left join country on
+    country.id = company.id_country
+
+left join lateral (
+    with x as (
+        values ((
+            select company.id
+        ))
+    )
+    select *
+    from x
+    limit 1
+) as test_with_values on true
+                    `,
+            clean: `
+                select test_with_values.*
+from company
+
+left join lateral (
+    with x as (
+        values ((
+            select company.id
+        ))
+    )
+    select *
+    from x
+    limit 1
+) as test_with_values on true
+                `
+        });
+    });
+
 });
