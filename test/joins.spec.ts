@@ -582,9 +582,9 @@ describe("RemoveJoins", () => {
             dirty: `
                 select from company
 
-    left join country on
-        country.id = company.id_country and
-        true
+                left join country on
+                    country.id = company.id_country and
+                    true
                     `,
             clean: `
                 select from company
@@ -592,6 +592,78 @@ describe("RemoveJoins", () => {
         });
     });
 
+    it("test #4", () => {
+        testCleaner({
+            dirty: `
+                select from company
+
+                left join country on
+                    country.id = 1
+                    `,
+            clean: `
+                select from company
+                `
+        });
+    });
+
+
+    it("test #5", () => {
+        testCleaner({
+            dirty: `
+                select from company
+
+                left join country on
+                    country.id = (select 1) and
+                    true
+                    `,
+            clean: `
+                select from company
+                `
+        });
+    });
+
+
+    it("test #6", () => {
+        testCleaner({
+            clean: `
+                select from company
+
+                left join country on
+                    country.id = (select 1) or
+                    true
+                `
+        });
+    });
+
+
+
+    it("test #7", () => {
+        testCleaner({
+            clean: `
+                select from company
+
+                left join country on
+                    country.id = company.id_country
+
+                where country.id > 3
+                `
+        });
+    });
+
+
+    it("test #8", () => {
+        testCleaner({
+            clean: `
+                select from company
+
+                left join country on
+                    country.id = company.id_country
+
+                left join company as company2 on
+                    company2.id_country = country.id
+                `
+        });
+    });
 
 
 });
