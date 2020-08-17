@@ -846,5 +846,106 @@ describe("RemoveJoins", () => {
         });
     });
 
+    it("test #17", () => {
+        testCleaner({
+            dirty: `
+                select from company
+
+                left join (select * from country limit 1) as country on true
+
+                group by country.id
+                    `,
+            clean: `
+                select from company
+
+                left join (select * from country limit 1) as country on true
+
+                group by country.id
+                `
+        });
+    });
+
+
+    it("test #18", () => {
+        testCleaner({
+            dirty: `
+                select from company
+
+                left join (select * from country limit 1) as country on true
+
+                group by cube (company.id, (country.id, 1))
+                    `,
+            clean: `
+                select from company
+
+                left join (select * from country limit 1) as country on true
+
+                group by cube (company.id, (country.id, 1))
+                `
+        });
+    });
+
+
+    it("test #19", () => {
+        testCleaner({
+            dirty: `
+                select from company
+
+                left join (select * from country limit 1) as country on true
+
+                group by rollup (company.id, (country.id, 1))
+                    `,
+            clean: `
+                select from company
+
+                left join (select * from country limit 1) as country on true
+
+                group by rollup (company.id, (country.id, 1))
+                `
+        });
+    });
+
+
+    it("test #20", () => {
+        testCleaner({
+            dirty: `
+                select from company
+
+                left join (select * from country limit 1) as country on true
+
+                group by GROUPING SETS (company.id, country.code)
+                    `,
+            clean: `
+                select from company
+
+                left join (select * from country limit 1) as country on true
+
+                group by GROUPING SETS (company.id, country.code)
+                `
+        });
+    });
+
+
+    it("test #21", () => {
+        testCleaner({
+            dirty: `
+                select
+                    cast( country.id as bigint )
+                from company
+
+                left join (select * from country limit 1) as country on true
+                    `,
+            clean: `
+                select
+                    cast( country.id as bigint )
+                from company
+
+                left join (select * from country limit 1) as country on true
+                `
+        });
+    });
+
+
+
 
 });
