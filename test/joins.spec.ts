@@ -834,5 +834,17 @@ describe("RemoveJoins", () => {
     });
 
 
+    it("dependency inside sub query from select clause", () => {
+        testCleaner({
+            clean: `
+                select
+                    (select country.id) + 1
+                from company
+
+                left join (select * from country limit 1) as country on true
+                    `
+        });
+    });
+
 
 });
