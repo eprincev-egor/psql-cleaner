@@ -66,8 +66,8 @@ export class Join {
         const allColumnsLinks = rootSelect.filterChildrenByInstance(ColumnLink);
 
         const hasReferenceToThatFromItem = allColumnsLinks.some(columnLink => {
-            if ( this.condition.containColumnLink(columnLink) ) {
-                return false
+            if ( this.containColumnLink(columnLink) ) {
+                return false;
             }
 
             const parentSelect = columnLink.findParentInstance(Select);
@@ -82,10 +82,12 @@ export class Join {
                     return false;
                 });
                 const rootJoin = parentJoins.pop();
-                
+                // const parentJoin = parentJoins.shift() || rootJoin;
+
                 if ( rootJoin ) {
                     const rootFromItem = rootJoin.get("from") as FromItem;
-                    if ( !rootFromItem.get("lateral") ) {
+                    
+                    if ( rootFromItem.get("select") && !rootFromItem.get("lateral") ) {
                         return false;
                     }
                 }
@@ -103,6 +105,23 @@ export class Join {
         });
         
         return hasReferenceToThatFromItem;
+    }
+
+    private containColumnLink(columnLink: ColumnLink) {
+        
+        if ( this.condition.containColumnLink(columnLink) ) {
+            return true;
+        }
+        
+        const subQuery = this.from.get("select");
+        if ( !subQuery ) {
+            return false;
+        }
+        
+        const subQueryContainThatLink =  subQuery.filterChildren(someColumnLink =>
+            someColumnLink === columnLink
+        ).length > 0;
+        return subQueryContainThatLink;
     }
 }
 

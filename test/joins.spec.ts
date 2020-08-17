@@ -1249,4 +1249,130 @@ describe("RemoveJoins", () => {
 
 
 
+    it("test #34", () => {
+        testCleaner({
+            clean: `
+                select
+                    comp_id.id
+                from (select 1 as id) as comp_id
+
+                left join company on
+                    company.id = comp_id.id
+
+                left join lateral (
+                    select * from (
+                        with
+                            test as (
+                                select
+                                    company.name
+                            )
+                        select * from test
+                    ) as some_table
+                ) as some_table on true
+                    `
+        });
+    });
+
+
+    it("test #35", () => {
+        testCleaner({
+            dirty: `
+                select
+                    comp_id.id
+                from (select 1 as id) as comp_id
+
+                left join company on
+                    company.id = comp_id.id
+
+                left join lateral (
+                    select * from (
+                        with
+                            test as (
+                                select
+                                    company.name
+                            )
+                        select * from test
+                    ) as some_table
+
+                    limit 1
+                ) as some_table on true
+                    `,
+            clean: `
+                select
+                    comp_id.id
+                from (select 1 as id) as comp_id
+                `
+        });
+    });
+
+
+    it("test #36", () => {
+        testCleaner({
+            dirty: `
+                select from company
+
+                left join public.order as orders on
+                    orders.id_company_client = company.id
+
+                left join lateral (
+                    select *
+                    from country
+                    where
+                        country.id in (
+                            orders.id_country_start,
+                            orders.id_country_end
+                        )
+                    limit 1
+                ) as country on true
+                    `,
+            clean: `
+                select from company
+
+                left join public.order as orders on
+                    orders.id_company_client = company.id
+                `
+        });
+    });
+
+
+    it("test #37", () => {
+        testCleaner({
+            clean: `
+                select CountryEnd.id
+                from company
+
+                left join country on
+                    country.id = company.id_country
+
+                left join country as CountryEnd on
+                    CountryEnd.id = (select country.id)
+                `
+        });
+    });
+
+
+    it("test #37.1", () => {
+        testCleaner({
+            clean: `
+                select CountryEnd.id
+                from company
+
+                left join country on
+                    country.id = company.id_country
+
+                left join lateral (
+                    select
+                    from (select) as tmp
+
+                    inner join country as CountryInner on
+                        CountryInner.id = (select country.id)
+
+                    limit 1
+                ) as CountryEnd on true
+                `
+        });
+    });
+
+
+
 });
