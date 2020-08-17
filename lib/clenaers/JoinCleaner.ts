@@ -3,8 +3,8 @@ import {
     Join as JoinSyntax,
     FromItem
 } from "grapeql-lang";
-import { Join } from "./Join";
-import { UniqueConstraint } from "./UniqueConstraint";
+import { Join } from "./entity/Join";
+import { UniqueConstraint } from "./entity/UniqueConstraint";
 
 export class JoinCleaner {
     clean(dirtySelect: Select, constrains: UniqueConstraint[]): Select {

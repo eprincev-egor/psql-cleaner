@@ -1,6 +1,6 @@
-import { JoinCleaner } from "./join/JoinCleaner";
+import { JoinCleaner } from "./JoinCleaner";
 import { Parser } from "../Parser";
-import { UniqueConstraint } from "./join/UniqueConstraint";
+import { UniqueConstraint } from "./entity/UniqueConstraint";
 
 export class MainCleaner {
     private parser = new Parser();
