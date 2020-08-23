@@ -64,11 +64,7 @@ export class Column {
     }
 
     getName() {
-        if ( !this.name ) {
-            throw new Error("no column name");
-        }
-
-        const columnName = this.name.toLowerCase() as string;
+        const columnName = (this.name as ObjectName).toLowerCase() as string;
         return columnName;
     }
 }

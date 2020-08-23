@@ -79,10 +79,7 @@ export class JoinCondition {
         uniqueConstrains: UniqueConstraint[], 
         joinedTableColumns: string[]
     ) {
-        if ( !this.fromTable ) {
-            throw new Error("no table");
-        }
-        const fromTable = this.fromTable;
+        const fromTable = this.fromTable as Table;
 
         const tableConstraints = uniqueConstrains.filter(uniqueConstraint =>
             uniqueConstraint.schemaName === fromTable.schema &&

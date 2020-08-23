@@ -71,25 +71,6 @@ export class Join {
             const parentSelect = columnLink.findParentInstance(Select);
             if ( parentSelect !== rootSelect ) {
 
-                const parentJoins: JoinSyntax[] = [];
-                parentSelect.findParent((someParent) => {
-                    if ( someParent instanceof JoinSyntax ) {
-                        const parentJoin = someParent;
-                        parentJoins.push(parentJoin);
-                    }
-                    return false;
-                });
-                const rootJoin = parentJoins.pop();
-                // const parentJoin = parentJoins.shift() || rootJoin;
-
-                if ( rootJoin ) {
-                    const rootFromItem = rootJoin.get("from") as FromItem;
-                    
-                    if ( rootFromItem.get("select") && !rootFromItem.get("lateral") ) {
-                        return false;
-                    }
-                }
-
                 const sameFrom = findSameFrom(parentSelect, this.from);
                 
                 if ( sameFrom ) {

@@ -577,6 +577,29 @@ describe("RemoveJoins", () => {
             `
         });
 
+        testCleaner({
+            dirty: `
+                select from orders
+
+                left join users as managers on
+                    managers.id = orders.id_manager
+
+                left join lateral (
+                    select 
+                        managers.id
+                    from users as managers
+                ) as totals on true
+            `,
+            clean: `
+                select from orders
+
+                left join lateral (
+                    select 
+                        managers.id
+                    from users as managers
+                ) as totals on true
+            `
+        });
     });
 
     it("test #3", () => {
@@ -1985,4 +2008,75 @@ on country.id = company.id_country
     //     });
     // });
 
+    it("test #71", () => {
+        testCleaner({
+            clean: `
+                select
+                `
+        });
+    });
+
+
+    it("test #72", () => {
+        testCleaner({
+            clean: `
+                select
+                from companies
+                
+                left join countries on
+                    false in (true, false)
+                `
+        });
+    });
+
+
+    it("test #73", () => {
+        testCleaner({
+            clean: `
+                select
+                from companies
+                
+                left join countries on
+                    1 in (1, 2, 3)
+                `
+        });
+    });
+
+    it("test #74", () => {
+        testCleaner({
+            dirty: `
+                select
+                    country.id
+                from companies
+                
+                left join (
+                    select 
+                        country.code
+                    from public.countries as country
+                    limit 1
+                ) as tmp on true
+
+                inner join public.countries as country on
+                    country.id = 1
+                `,
+            clean: `
+                select
+                    country.id
+                from companies
+                
+                inner join public.countries as country on
+                    country.id = 1
+            `
+        });
+    });
+    
+    it("test #75", () => {
+        testCleaner({
+            clean: `
+                select
+                from companies, countries
+                `
+        });
+    });
+    
 });

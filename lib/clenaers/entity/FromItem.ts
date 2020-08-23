@@ -1,6 +1,7 @@
 import { 
     Select, 
-    FromItem as FromItemSyntax
+    FromItem as FromItemSyntax,
+    Join as JoinSyntax
 } from "grapeql-lang";
 import { Join } from "./Join";
 import { UniqueConstraint } from "./UniqueConstraint";
@@ -14,7 +15,7 @@ export class FromItem {
         
         this.syntax = fromItemSyntax
 
-        const joinsSyntaxes = fromItemSyntax.get("joins") || [];
+        const joinsSyntaxes = fromItemSyntax.get("joins") as JoinSyntax[];
         this.joins = joinsSyntaxes.map(joinSyntax => 
             new Join(joinSyntax)
         );
@@ -46,7 +47,7 @@ export class FromItem {
 
     private removeJoin(dirtyJoin: Join) {
 
-        const allJoinsSyntaxes = this.syntax.get("joins") || [];
+        const allJoinsSyntaxes = this.syntax.get("joins") as JoinSyntax[];
         const cleanJoinsSyntaxes = allJoinsSyntaxes.filter(someJoin =>
             someJoin !== dirtyJoin.syntax
         );
