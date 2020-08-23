@@ -65,7 +65,7 @@ export class Join {
     private hasDependencies(rootSelect: Select): boolean {
         const allColumnsLinks = rootSelect.filterChildrenByInstance(ColumnLink);
 
-        const hasReferenceToThatFromItem = allColumnsLinks.some(columnLink => {
+        const hasColumnReference = allColumnsLinks.some(columnLink => {
             if ( this.containColumnLink(columnLink) ) {
                 return false;
             }
@@ -103,8 +103,14 @@ export class Join {
             const hasReference = column.from(this.from);
             return hasReference;
         });
+
+        const childJoins = this.from.get("joins") as JoinSyntax[];
         
-        return hasReferenceToThatFromItem;
+        const hasDependency = (
+            hasColumnReference ||
+            childJoins.length > 0
+        );
+        return hasDependency;
     }
 
     private containColumnLink(columnLink: ColumnLink) {

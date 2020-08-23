@@ -1477,6 +1477,20 @@ describe("RemoveJoins", () => {
         });
     });
 
+    it("test #46", () => {
+        testCleaner({
+            clean: `
+            select country_second.id
+            from company
+
+            left join country as country_first
+                left join country as country_second
+                on country_second.id = company.id_country + 1
+            on country_first.id = company.id_country
+                `
+        });
+    });
+
 
     it("test #47", () => {
         testCleaner({
