@@ -1373,6 +1373,136 @@ describe("RemoveJoins", () => {
         });
     });
 
+    it("test #38", () => {
+        testCleaner({
+            dirty: `
+                select from company
+
+                left join country on
+                    country.id = company.id_country
+
+                left join country as CountryEnd on
+                    CountryEnd.id = (select country.id)
+                    `,
+            clean: `
+                select from company
+                `
+        });
+    });
+
+
+    it("test #39", () => {
+        testCleaner({
+            dirty: `
+                select CountryEnd.id
+                from company
+
+                left join country on
+                    country.id = company.id_country
+
+                left join country as CountryEnd on
+                    CountryEnd.id = (
+                        select country.id
+                        from country
+                        limit 1
+                    )
+                    `,
+            clean: `
+                select CountryEnd.id
+                from company
+
+                left join country as CountryEnd on
+                    CountryEnd.id = (
+                        select country.id
+                        from country
+                        limit 1
+                    )
+                `
+        });
+    });
+
+
+    it("test #40", () => {
+        testCleaner({
+            dirty: `
+                select CountryEnd.id
+                from company
+
+                left join country on
+                    country.id = company.id_country
+
+                left join lateral (
+                    select *
+                    from country
+                ) as CountryEnd on
+                    CountryEnd.id = 1
+                    `,
+            clean: `
+                select CountryEnd.id
+                from company
+
+                left join lateral (
+                    select *
+                    from country
+                ) as CountryEnd on
+                    CountryEnd.id = 1
+                `
+        });
+    });
+
+
+    it("test #45", () => {
+        testCleaner({
+            dirty: `
+                select
+                    public.order.id,
+                    CompanyClient.inn as "client_inn"
+                from public.order
+
+                left join company as CompanyClient on
+                    CompanyClient.id = public.order.id_company_client
+
+                left join country as "CompanyClient.country" on
+                    "CompanyClient.country".id = CompanyClient.id_country
+                    `,
+            clean: `
+                select
+                    public.order.id,
+                    CompanyClient.inn as "client_inn"
+                from public.order
+
+                left join company as CompanyClient on
+                    CompanyClient.id = public.order.id_company_client
+                `
+        });
+    });
+
+
+    it("test #47", () => {
+        testCleaner({
+            dirty: `
+                select
+                    public.order.id,
+                    CompanyClient.inn as "client_inn"
+                from public.order
+
+                left join company as CompanyClient on
+                    CompanyClient.id = public.order.id_company_client
+
+                left join country as "CompanyClient.country" on
+                    "CompanyClient.country".id = CompanyClient.id_country
+                    `,
+            clean: `
+                select
+                    public.order.id,
+                    CompanyClient.inn as "client_inn"
+                from public.order
+
+                left join company as CompanyClient on
+                    CompanyClient.id = public.order.id_company_client
+                `
+        });
+    });
 
 
 });
