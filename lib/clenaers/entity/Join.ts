@@ -15,8 +15,10 @@ export class Join {
     private type: string;
     private condition: JoinCondition;
     private from: FromItem;
+    syntax: JoinSyntax;
     
     constructor(join: JoinSyntax) {
+        this.syntax = join;
         this.type = join.get("type") as string;
         this.from = join.get("from") as FromItem;
 
@@ -26,10 +28,6 @@ export class Join {
 
     isDirty(select: Select, constrains: UniqueConstraint[]) {
         const join = this;
-
-        if ( !join.isLeft() ) {
-            return false;
-        }
 
         if ( !join.returnsOnlyOneRow(constrains) ) {
             return false;
@@ -58,7 +56,7 @@ export class Join {
         return true;
     }
 
-    private isLeft() {
+    isLeft() {
         return this.type === "left join";
     }
 

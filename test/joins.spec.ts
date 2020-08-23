@@ -52,7 +52,7 @@ describe("RemoveJoins", () => {
             `
         });
     });
-    
+
     it("unused right join", () => {
         testCleaner({
             clean: `
@@ -153,7 +153,6 @@ describe("RemoveJoins", () => {
             `
         });
     });
-
 
     it("all reference name variants", () => {
         testCleaner({
@@ -1518,5 +1517,472 @@ describe("RemoveJoins", () => {
         });
     });
 
+
+    it("test #48", () => {
+        testCleaner({
+            clean: `
+            select 
+                string_agg( company.name ) filter (where 
+                    country.code is not null 
+                )
+            from company
+
+            left join country on
+                country.id = company.id_country
+                `
+        });
+    });
+
+
+    it("test #49", () => {
+        testCleaner({
+            clean: `
+            select 
+                string_agg( 
+                    company.name 
+                    order by country.code 
+                )
+            from company
+
+            left join country on
+                country.id = company.id_country
+                `
+        });
+    });
+
+    it("test #50", () => {
+        testCleaner({
+            clean: `
+            select 
+                string_agg( company.name ) 
+                within group (
+                    order by country.code
+                )
+            from company
+
+            left join country on
+                country.id = company.id_country
+                `
+        });
+    });
+
+
+    it("test #51", () => {
+        testCleaner({
+            clean: `
+            select
+                row_number() over (
+                    order by 
+                        company.id desc, 
+                        country.name desc
+                ) as index_x
+            from company
+
+            left join country on
+                country.id = company.id_country
+                `
+        });
+    });
+
+
+    it("test #52", () => {
+        testCleaner({
+            clean: `
+            select
+                row_number() over (
+                    partition by 
+                        company.id, 
+                        country.name
+                ) as index_x
+            from company
+
+            left join country on
+                country.id = company.id_country
+                `
+        });
+    });
+
+
+    it("test #53", () => {
+        testCleaner({
+            clean: `
+            select
+                row_number() over (test_x) as index_x
+            from company
+
+            left join country on
+                country.id = company.id_country
+
+            window
+                test_x as (order by company.id desc, country.name desc)
+                `
+        });
+    });
+
+
+
+    it("test #54", () => {
+        testCleaner({
+            clean: `
+            select
+                row_number() over (test_x) as index_x
+            from company
+
+            left join country on
+                country.id = company.id_country
+
+            window
+                test_x as (partition by company.id, country.name)
+                `
+        });
+    });
+
+
+    it("test #55", () => {
+        testCleaner({
+            clean: `
+            select 
+                totals.count
+            from company
+
+            left join country on
+                country.id = company.id_country
+
+            left join lateral get_company_totals(
+                country.code
+            ) as totals on true
+                `
+        });
+    });
+
+
+    it("test #56", () => {
+        testCleaner({
+            clean: `
+            select totals.count
+from company
+
+left join country
+    left join lateral get_company_totals(
+        country.code
+    ) as totals on true
+on country.id = company.id_country
+                `
+        });
+    });
+
+
+    it("test #57", () => {
+        testCleaner({
+            clean: `
+            select next_country.code
+            from company
+
+            left join country
+                inner join country as next_country
+                on next_country.id = (country.id + 1)
+            on country.id = company.id_country
+                `
+        });
+    });
+
+
+    it("test #58", () => {
+        testCleaner({
+            clean: `
+                select *
+                from company
+
+                left join country
+                    inner join country as next_country
+                    on next_country.id = (country.id + 1)
+                on country.id = company.id_country
+                `
+        });
+    });
+
+
+    it("test #59", () => {
+        testCleaner({
+            clean: `
+                select country.code
+                from company
+
+                left join country
+                    inner join country as next_country
+                    on next_country.id = (country.id + 1)
+                on country.id = company.id_country
+                `
+        });
+    });
+
+
+    it("test #60", () => {
+        testCleaner({
+            dirty: `
+                select country.code
+                from company
+
+                left join country
+                    left join country as next_country
+                    on next_country.id = (country.id + 1)
+                on country.id = company.id_country
+                                    `,
+            clean: `
+                                select country.code
+                from company
+
+                left join country
+                on country.id = company.id_country
+                `
+        });
+    });
+
+
+    // it("test #61", () => {
+    //     testCleaner({
+    //         dirty: `
+    //             select company.inn
+    //             from company
+
+    //             left join country
+    //                 inner join country as next_country
+    //                 on next_country.id = (country.id + 1)
+    //             on country.id = company.id_country
+    //                 `,
+    //         clean: `
+    //             select company.inn
+    //             from company
+    //             `
+    //     });
+    // });
+
+
+
+
+    // it("test #62", () => {
+    //     testCleaner({
+    //         dirty: `
+    //             select company.inn
+    //             from company
+
+    //             left join country
+    //                 left join country as country2
+    //                 on country2.id = (country.id + 1)
+
+    //                 inner join country as country3
+    //                 on country3.id = (country2.id + 1)
+    //             on country.id = company.id_country
+    //                 `,
+    //         clean: `
+    //             select company.inn
+    //             from company
+    //             `
+    //     });
+    // });
+
+
+    it("test #63", () => {
+        testCleaner({
+            clean: `
+                select country2.code
+                from company
+
+                left join country
+                    left join country as country2
+                    on country2.id = (country.id + 1)
+
+                    inner join country as country3
+                    on country3.id = (country2.id + 1)
+                on country.id = company.id_country
+                `
+        });
+    });
+
+
+    it("test #64", () => {
+        testCleaner({
+            clean: `
+                select country4.code
+                from company
+
+                left join country
+                    left join country as country2
+                    on country2.id = (country.id + 1)
+
+                    inner join country as country3
+                        left join country as country4
+                        on country4.id = country2.id
+                    on country3.id = (country2.id + 1)
+                on country.id = company.id_country
+                `
+        });
+    });
+
+
+    // it("test #65", () => {
+    //     testCleaner({
+    //         dirty: `
+    //             select company.id
+    //             from company
+
+    //             left join country
+    //                 left join country as country2
+    //                 on country2.id = (country.id + 1)
+
+    //                 inner join country as country3
+    //                     left join country as country4
+    //                     on country4.id = country2.id
+    //                 on country3.id = (country2.id + 1)
+    //             on country.id = company.id_country
+    //                 `,
+    //         clean: `
+    //             select company.id
+    //             from company
+    //             `
+    //     });
+    // });
+
+
+    it("test #66", () => {
+        testCleaner({
+            dirty: `
+                select country4.code
+                from company
+
+                left join country
+                    left join country as country2
+                    on country2.id = (country.id + 1)
+
+                    inner join country as country3
+                        left join country as country4
+                        on country4.id = country3.id
+                    on country3.id = (country3.id + 1)
+                on country.id = company.id_country
+                    `,
+            clean: `
+                select country4.code
+                from company
+
+                left join country
+                    inner join country as country3
+                        left join country as country4
+                        on country4.id = country3.id
+                    on country3.id = (country3.id + 1)
+                on country.id = company.id_country
+                `
+        });
+    });
+
+
+    it("test #67", () => {
+        testCleaner({
+            clean: `
+                select country4.code
+                from company
+
+                left join country
+                    inner join country as country2
+                    on country2.id = (country.id + 1)
+
+                    inner join country as country3
+                        left join country as country4
+                        on country4.id = country3.id
+                    on country3.id = (country3.id + 1)
+                on country.id = company.id_country
+                `
+        });
+    });
+
+
+    it("test #68", () => {
+        testCleaner({
+            clean: `
+                select test_with_values.*
+                from company
+
+                left join country on
+                    country.id = company.id_country
+
+                left join lateral (
+                    with x as (
+                        values ((
+                            select country.id
+                        ))
+                    )
+                    select *
+                    from x
+                    limit 1
+                ) as test_with_values on true
+                `
+        });
+    });
+
+
+    it("test #69", () => {
+        testCleaner({
+            dirty: `
+                select company.id
+                from company
+
+                left join country on
+                    country.id = company.id_country
+
+                left join lateral (
+                    with x as (
+                        values ((
+                            select country.id
+                        ))
+                    )
+                    select *
+                    from x
+                    limit 1
+                ) as test_with_values on true
+                    `,
+            clean: `
+                select company.id
+                from company
+                `
+        });
+    });
+
+
+    // it("test #70", () => {
+    //     testCleaner({
+    //         dirty: `
+    //             select test_with_values.*
+    //             from company
+
+    //             left join country on
+    //                 country.id = company.id_country
+
+    //             left join lateral (
+    //                 with x as (
+    //                     values ((
+    //                         select company.id
+    //                     ))
+    //                 )
+    //                 select *
+    //                 from x
+    //                 limit 1
+    //             ) as test_with_values on true
+    //                 `,
+    //         clean: `
+    //             select test_with_values.*
+    //             from company
+
+    //             left join lateral (
+    //                 with x as (
+    //                     values ((
+    //                         select company.id
+    //                     ))
+    //                 )
+    //                 select *
+    //                 from x
+    //                 limit 1
+    //             ) as test_with_values on true
+    //             `
+    //     });
+    // });
 
 });
