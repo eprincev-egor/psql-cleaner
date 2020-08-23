@@ -9,8 +9,7 @@
         "experimentalDecorators": true,
         "emitDecoratorMetadata": true,
         "resolveJsonModule": true,
-        "skipLibCheck": true,
-        "strict": true
+        "skipLibCheck": true
     },
     "include": ["lib/**/*.ts"],
     "exclude": ["node_modules"]
