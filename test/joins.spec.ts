@@ -2105,4 +2105,53 @@ on country.id = company.id_country
         });
     });
     
+    it("test #77", () => {
+        testCleaner({
+            clean: `
+                select distinct on (countries.code)
+                    1
+                from companies
+
+                left join countries on 
+                    countries.id = companies.id_country
+            
+                `
+        });
+    });
+    
+    it("test #78", () => {
+        testCleaner({
+            dirty: `
+                select distinct on (1)
+                    1
+                from companies
+
+                left join countries on 
+                    countries.id = companies.id_country
+            
+                `,
+            clean: `
+                select distinct on (1)
+                    1
+                from companies
+            `
+        });
+    });
+
+    it("test #79", () => {
+        testCleaner({
+            clean: `
+                select distinct on (1)
+                    1
+                from companies
+
+                left join countries on 
+                    countries.id = companies.id_country
+                
+                where
+                    countries.code is not null
+                `
+        });
+    });
+
 });
