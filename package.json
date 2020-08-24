@@ -1,6 +1,6 @@
 {
   "name": "psql-cleaner",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "removing unused joins and cte from select",
   "main": "dist/index.js",
   "scripts": {
@@ -21,7 +21,7 @@
   },
   "homepage": "https://github.com/eprincev-egor/psql-cleaner#readme",
   "dependencies": {
-    "grapeql-lang": "^2.5.7"
+    "grapeql-lang": "^2.6.0"
   },
   "nyc": {
     "extension": [
