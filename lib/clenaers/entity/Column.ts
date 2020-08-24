@@ -1,4 +1,4 @@
-import { ObjectName, ColumnLink, FromItem, TableLink } from "grapeql-lang";
+import { ObjectName, ColumnLink, FromItem, TableLink, Select } from "grapeql-lang";
 import { Table } from "./Table";
 
 export class Column {
@@ -10,6 +10,24 @@ export class Column {
     constructor(columnLink: ColumnLink) {
         this.route = columnLink.get("link") as ObjectName[];
         this.hasStar = columnLink.isStar() as boolean;
+
+        if ( this.route.length === 1 && ! this.hasStar ) {
+            const parentSelect = columnLink.findParentInstance(Select);
+            const fromItems = parentSelect.get("from") as FromItem[];
+            const firstFrom = fromItems[0];
+
+            if ( firstFrom ) {
+                const firstFromAlias = firstFrom.get("as");
+                if ( firstFromAlias ) {
+                    this.route.unshift(firstFromAlias);
+                }
+                else {
+                    const firstFromTable = firstFrom.get("table") as TableLink;
+                    const firstFromTableRoute = firstFromTable.get("link") as ObjectName[];
+                    this.route = [...firstFromTableRoute, ...this.route];
+                }
+            }
+        }
         
         if ( !this.hasStar ) {
             this.name = columnLink.last();

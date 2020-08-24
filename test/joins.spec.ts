@@ -2079,4 +2079,30 @@ on country.id = company.id_country
         });
     });
     
+    
+    it("test #76", () => {
+        testCleaner({
+            dirty: `
+                select 
+                    (
+                        select id
+                        from y
+                    )
+                from x
+
+                left join z on 
+                    z.id = 1
+            
+                `,
+            clean: `
+                select 
+                    (
+                        select id
+                        from y
+                    )
+                from x
+            `
+        });
+    });
+    
 });

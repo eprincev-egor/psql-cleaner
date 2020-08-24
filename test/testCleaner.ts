@@ -28,7 +28,7 @@ function equalSQL(expectedSQL: string, actualSQL: string) {
     const actualSelect = new Parser().parse(actualSQL);
 
     assert.deepStrictEqual(
-        expectedSelect.toJSON(),
-        actualSelect.toJSON()
+        expectedSelect.toString(),
+        actualSelect.toString()
     );
 }

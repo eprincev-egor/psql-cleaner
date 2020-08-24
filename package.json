@@ -1,6 +1,6 @@
 {
   "name": "psql-cleaner",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "removing unused joins and cte from select",
   "main": "dist/index.js",
   "scripts": {

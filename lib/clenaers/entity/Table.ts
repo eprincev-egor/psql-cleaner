@@ -21,8 +21,8 @@ export class Table {
 
     equal(otherTable: Table) {
         const isSameTable = (
-            otherTable.schema == this.schema &&
-            otherTable.name == this.name
+            otherTable.schema === this.schema &&
+            otherTable.name === this.name
         );
         return isSameTable;
     }

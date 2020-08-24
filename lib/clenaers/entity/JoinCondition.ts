@@ -1,4 +1,4 @@
-import { Expression, Operator, FromItem, ColumnLink, TableLink, Boolean } from "grapeql-lang";
+import { Expression, Operator, FromItem, ColumnLink, Boolean } from "grapeql-lang";
 import { Column } from "./Column";
 import { UniqueConstraint } from "./UniqueConstraint";
 import { Table } from "./Table";
