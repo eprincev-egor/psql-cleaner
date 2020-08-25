@@ -2267,4 +2267,26 @@ on country.id = company.id_country
         });
     });
 
+    it("test #85", () => {
+        testCleaner({
+            dirty: `
+                select from companies
+
+                left join lateral (
+                    select *
+                    from events
+                    where
+                        events.id_company = companies.id
+                    limit 1
+                ) as events on true
+                
+                left join some_type on 
+                    some_type.id = companies.id_some_type
+            `,
+            clean: `
+                select from companies
+            `
+        });
+    });
+
 });

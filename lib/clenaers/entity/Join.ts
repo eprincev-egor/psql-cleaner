@@ -79,6 +79,10 @@ export class Join {
                 if ( sameFrom ) {
                     return false;
                 }
+
+                if ( columnLink.toString() === "*" ) {
+                    return false;
+                }
             }
 
             const column = new Column(columnLink);
