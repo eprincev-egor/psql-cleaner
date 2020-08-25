@@ -1,7 +1,7 @@
 import assert from "assert";
 import { clean } from "../lib/index";
 import { Parser } from "../lib/Parser";
-import { UniqueConstraint, IUniqueConstraintParams } from "../lib/clenaers/entity/UniqueConstraint";
+import { UniqueConstraint, IUniqueConstraintParams } from "../lib/cleaners/entity/UniqueConstraint";
 
 export interface ITest {
     dirty?: string;

@@ -1,5 +1,5 @@
-import { MainCleaner } from "./clenaers/MainCleaner";
-import { UniqueConstraint } from "./clenaers/entity/UniqueConstraint";
+import { MainCleaner } from "./cleaners/MainCleaner";
+import { UniqueConstraint } from "./cleaners/entity/UniqueConstraint";
 
 export function clean(selectSQL: string, constrains: UniqueConstraint[]): string {
     const cleaner = new MainCleaner();
