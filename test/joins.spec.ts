@@ -2289,4 +2289,32 @@ on country.id = company.id_country
         });
     });
 
+    it("test #86", () => {
+        testCleaner({
+            dirty: `
+                select from companies
+
+                left join some_type on 
+                    some_type.id = companies.some_types[1]
+            `,
+            clean: `
+                select from companies
+            `
+        });
+    });
+
+    it("test #87", () => {
+        testCleaner({
+            dirty: `
+                select from companies
+
+                left join some_type on 
+                    companies.some_types[1] = some_type.id
+            `,
+            clean: `
+                select from companies
+            `
+        });
+    });
+
 });
