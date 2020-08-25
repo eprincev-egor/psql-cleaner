@@ -2,7 +2,7 @@ import {testCleaner} from "./testCleaner";
 
 describe("RemoveJoins", () => {
 
-    it("unused left join, filter by primary key", () => {
+    it("test #1", () => {
         testCleaner({
             dirty: `
                 select from company
@@ -14,7 +14,9 @@ describe("RemoveJoins", () => {
                 select from company
             `
         });
+    });
 
+    it("test #2", () => {
         testCleaner({
             dirty: `
                 select from company
@@ -26,6 +28,9 @@ describe("RemoveJoins", () => {
                 select from company
             `
         });
+    });
+    
+    it("test #3", () => {
 
         testCleaner({
             dirty: `
@@ -38,7 +43,9 @@ describe("RemoveJoins", () => {
                 select from company
             `
         });
-
+    });
+    
+    it("test #4", () => {
 
         testCleaner({
             dirty: `
@@ -53,7 +60,7 @@ describe("RemoveJoins", () => {
         });
     });
 
-    it("unused right join", () => {
+    it("test #5", () => {
         testCleaner({
             clean: `
                 select from company
@@ -62,6 +69,9 @@ describe("RemoveJoins", () => {
                     country.id = company.id_country
             `
         });
+    });
+    
+    it("test #6", () => {
         testCleaner({
             clean: `select from company
     
@@ -70,7 +80,7 @@ describe("RemoveJoins", () => {
         });
     });
     
-    it("left join used in columns clause", () => {
+    it("test #7", () => {
         testCleaner({
             clean: `
                 select
@@ -81,6 +91,9 @@ describe("RemoveJoins", () => {
                     country.id = company.id_country
             `
         });
+    });
+    
+    it("test #8", () => {
 
         testCleaner({
             clean: `
@@ -94,7 +107,7 @@ describe("RemoveJoins", () => {
         });
     });
     
-    it("left join can return more than one row", () => {
+    it("test #9", () => {
         testCleaner({
             clean: `
                 select from company
@@ -102,6 +115,9 @@ describe("RemoveJoins", () => {
                 left join country on true
             `
         });
+    });
+    
+    it("test #10", () => {
 
         testCleaner({
             clean: `
@@ -111,6 +127,9 @@ describe("RemoveJoins", () => {
                     company.id = company.id
             `
         });
+    });
+    
+    it("test #11", () => {
 
         testCleaner({
             clean: `
@@ -122,7 +141,7 @@ describe("RemoveJoins", () => {
         });
     });
     
-    it("left join sub query with many rows", () => {
+    it("test #12", () => {
         testCleaner({
             clean: `
                 select from company
@@ -137,7 +156,7 @@ describe("RemoveJoins", () => {
     });
    
     
-    it("two unused left joins", () => {
+    it("test #13", () => {
         testCleaner({
             dirty: `
                 select from orders
@@ -154,7 +173,7 @@ describe("RemoveJoins", () => {
         });
     });
 
-    it("all reference name variants", () => {
+    it("test #14", () => {
         testCleaner({
             clean: `
                 select
@@ -165,6 +184,9 @@ describe("RemoveJoins", () => {
                     country.id = company.id_country
             `
         });
+    });
+    
+    it("test #15", () => {
 
         testCleaner({
             clean: `
@@ -176,6 +198,9 @@ describe("RemoveJoins", () => {
                     country.id = company.id_country
             `
         });
+    });
+    
+    it("test #16", () => {
 
         testCleaner({
             clean: `
@@ -187,6 +212,9 @@ describe("RemoveJoins", () => {
                     country.id = company.id_country
             `
         });
+    });
+    
+    it("test #17", () => {
 
         testCleaner({
             clean: `
@@ -198,6 +226,9 @@ describe("RemoveJoins", () => {
                     country.id = company.id_country
             `
         });
+    });
+    
+    it("test #18", () => {
 
         testCleaner({
             clean: `
@@ -209,6 +240,9 @@ describe("RemoveJoins", () => {
                     country.id = company.id_country
             `
         });
+    });
+    
+    it("test #19", () => {
 
         testCleaner({
             clean: `
@@ -220,6 +254,9 @@ describe("RemoveJoins", () => {
                     country.id = company.id_country
             `
         });
+    });
+    
+    it("test #20", () => {
 
         testCleaner({
             clean: `
@@ -240,7 +277,7 @@ describe("RemoveJoins", () => {
     });
     
 
-    it("reference in where clause", () => {
+    it("test #21", () => {
         testCleaner({
             clean: `
                 select from company
@@ -254,7 +291,7 @@ describe("RemoveJoins", () => {
         });
     });
     
-    it("second join can return more than one row", () => {
+    it("test #22", () => {
         testCleaner({
             clean: `
                 select from company
@@ -269,7 +306,7 @@ describe("RemoveJoins", () => {
     });
     
 
-    it("select *", () => {
+    it("test #23", () => {
         testCleaner({
             clean: `
                 select *
@@ -279,6 +316,9 @@ describe("RemoveJoins", () => {
                     country.id = company.id_country
             `
         });
+    });
+    
+    it("test #24", () => {
 
         testCleaner({
             clean: `
@@ -289,6 +329,9 @@ describe("RemoveJoins", () => {
                     country.id = company.id_country
             `
         });
+    });
+    
+    it("test #25", () => {
 
         testCleaner({
             clean: `
@@ -299,6 +342,9 @@ describe("RemoveJoins", () => {
                     country.id = company.id_country
             `
         });
+    });
+    
+    it("test #26", () => {
 
         testCleaner({
             clean: `
@@ -311,7 +357,7 @@ describe("RemoveJoins", () => {
         });
     });
    
-    it("many joins used in columns clause", () => {
+    it("test #27", () => {
         testCleaner({
             clean: `
                 select
@@ -327,7 +373,7 @@ describe("RemoveJoins", () => {
         });
     });
      
-    it("second join used in columns clause", () => {
+    it("test #28", () => {
         testCleaner({
             clean: `
                 select
@@ -341,6 +387,9 @@ describe("RemoveJoins", () => {
                     country.id = companies.id_country
             `
         });
+    });
+    
+    it("test #29", () => {
 
         testCleaner({
             dirty: `
@@ -373,7 +422,7 @@ describe("RemoveJoins", () => {
         });
     });
 
-    it("used in order by", () => {
+    it("test #30", () => {
         testCleaner({
             clean: `
                 select from company
@@ -384,6 +433,9 @@ describe("RemoveJoins", () => {
                 order by country.code desc
             `
         });
+    });
+    
+    it("test #31", () => {
 
         testCleaner({
             clean: `
@@ -397,7 +449,7 @@ describe("RemoveJoins", () => {
         });
     });
 
-    it("used in group by", () => {
+    it("test #32", () => {
         testCleaner({
             clean: `
                 select from company
@@ -408,6 +460,9 @@ describe("RemoveJoins", () => {
                 group by country.code
             `
         });
+    });
+    
+    it("test #33", () => {
 
         testCleaner({
             clean: `
@@ -419,6 +474,9 @@ describe("RemoveJoins", () => {
                 group by cube (company.id, (country.id, 1))
             `
         });
+    });
+    
+    it("test #34", () => {
 
         testCleaner({
             clean: `
@@ -430,6 +488,9 @@ describe("RemoveJoins", () => {
                 group by rollup (company.id, (country.id, 1))
             `
         });
+    });
+    
+    it("test #35", () => {
         testCleaner({
             clean: `
                 select from company
@@ -442,7 +503,7 @@ describe("RemoveJoins", () => {
         });
     });
 
-    it("used in having", () => {
+    it("test #36", () => {
         testCleaner({
             clean: `
                 select from company
@@ -456,7 +517,7 @@ describe("RemoveJoins", () => {
 
     });
 
-    it("remove dirty join to sub query", () => {
+    it("test #37", () => {
         testCleaner({
             dirty: `
                 select from company
@@ -470,7 +531,7 @@ describe("RemoveJoins", () => {
 
     });
 
-    it("left join to sub query can return more than one row", () => {
+    it("test #38", () => {
         testCleaner({
             clean: `
                 select from company
@@ -481,7 +542,7 @@ describe("RemoveJoins", () => {
 
     });
 
-    it("ignore comments", () => {
+    it("test #39", () => {
         testCleaner({
             clean: `
                 /* some comment */
@@ -489,6 +550,9 @@ describe("RemoveJoins", () => {
                 select from company
             `
         });
+    });
+    
+    it("test #40", () => {
         testCleaner({
             dirty: `
                 select 
@@ -504,7 +568,7 @@ describe("RemoveJoins", () => {
 
     });
 
-    it("join by two columns with unique constraint", () => {
+    it("test #41", () => {
         testCleaner({
             dirty: `
                 select from orders
@@ -530,7 +594,7 @@ describe("RemoveJoins", () => {
         });
     });
 
-    it("dirty join to sub query", () => {
+    it("test #42", () => {
         
         testCleaner({
             dirty: `
@@ -551,7 +615,7 @@ describe("RemoveJoins", () => {
 
     });
 
-    it("sub query has same name dependencies", () => {
+    it("test #43", () => {
         
         testCleaner({
             dirty: `
@@ -576,6 +640,9 @@ describe("RemoveJoins", () => {
                 ) as totals on true
             `
         });
+    });
+    
+    it("test #44", () => {
 
         testCleaner({
             dirty: `
@@ -602,7 +669,7 @@ describe("RemoveJoins", () => {
         });
     });
 
-    it("test #3", () => {
+    it("test #45", () => {
         testCleaner({
             dirty: `
                 select from company
@@ -617,7 +684,7 @@ describe("RemoveJoins", () => {
         });
     });
 
-    it("test #4", () => {
+    it("test #46", () => {
         testCleaner({
             dirty: `
                 select from company
@@ -632,7 +699,7 @@ describe("RemoveJoins", () => {
     });
 
 
-    it("test #5", () => {
+    it("test #47", () => {
         testCleaner({
             dirty: `
                 select from company
@@ -648,7 +715,7 @@ describe("RemoveJoins", () => {
     });
 
 
-    it("test #6", () => {
+    it("test #48", () => {
         testCleaner({
             clean: `
                 select from company
@@ -662,7 +729,7 @@ describe("RemoveJoins", () => {
 
 
 
-    it("test #7", () => {
+    it("test #49", () => {
         testCleaner({
             clean: `
                 select from company
@@ -676,7 +743,7 @@ describe("RemoveJoins", () => {
     });
 
 
-    it("test #8", () => {
+    it("test #50", () => {
         testCleaner({
             clean: `
                 select from company
@@ -690,7 +757,7 @@ describe("RemoveJoins", () => {
         });
     });
 
-    it("test #9", () => {
+    it("test #51", () => {
         testCleaner({
             dirty: `
                 select from public.order as orders
@@ -717,7 +784,7 @@ describe("RemoveJoins", () => {
 
 
 
-    it("test #10", () => {
+    it("test #52", () => {
         testCleaner({
             clean: `
                 select
@@ -735,7 +802,7 @@ describe("RemoveJoins", () => {
     });
 
 
-    it("test #11", () => {
+    it("test #53", () => {
         testCleaner({
             clean: `
                 select
@@ -753,7 +820,7 @@ describe("RemoveJoins", () => {
     });
 
 
-    it("test #12", () => {
+    it("test #54", () => {
         testCleaner({
             clean: `
                 select
@@ -771,7 +838,7 @@ describe("RemoveJoins", () => {
     });
 
 
-    it("test #13", () => {
+    it("test #55", () => {
         testCleaner({
             clean: `
                 select
@@ -794,7 +861,7 @@ describe("RemoveJoins", () => {
     });
 
 
-    it("test #14", () => {
+    it("test #56", () => {
         testCleaner({
             dirty: `
                 select
@@ -829,7 +896,7 @@ describe("RemoveJoins", () => {
     });
 
 
-    it("test #15", () => {
+    it("test #57", () => {
         testCleaner({
             dirty: `
                 select from company
@@ -843,7 +910,7 @@ describe("RemoveJoins", () => {
     });
 
 
-    it("test #16", () => {
+    it("test #58", () => {
         testCleaner({
             clean: `
                 select from company
@@ -856,7 +923,7 @@ describe("RemoveJoins", () => {
     });
 
 
-    it("dependency inside sub query from select clause", () => {
+    it("test #59", () => {
         testCleaner({
             clean: `
                 select
@@ -868,7 +935,7 @@ describe("RemoveJoins", () => {
         });
     });
 
-    it("test #17", () => {
+    it("test #60", () => {
         testCleaner({
             dirty: `
                 select from company
@@ -888,7 +955,7 @@ describe("RemoveJoins", () => {
     });
 
 
-    it("test #18", () => {
+    it("test #61", () => {
         testCleaner({
             dirty: `
                 select from company
@@ -908,7 +975,7 @@ describe("RemoveJoins", () => {
     });
 
 
-    it("test #19", () => {
+    it("test #62", () => {
         testCleaner({
             dirty: `
                 select from company
@@ -928,7 +995,7 @@ describe("RemoveJoins", () => {
     });
 
 
-    it("test #20", () => {
+    it("test #63", () => {
         testCleaner({
             dirty: `
                 select from company
@@ -948,7 +1015,7 @@ describe("RemoveJoins", () => {
     });
 
 
-    it("test #21", () => {
+    it("test #64", () => {
         testCleaner({
             dirty: `
                 select
@@ -968,7 +1035,7 @@ describe("RemoveJoins", () => {
     });
 
 
-    it("test #22", () => {
+    it("test #65", () => {
         testCleaner({
             dirty: `
                 select
@@ -988,7 +1055,7 @@ describe("RemoveJoins", () => {
     });
 
 
-    it("test #23", () => {
+    it("test #66", () => {
         testCleaner({
             dirty: `
                 select
@@ -1008,7 +1075,7 @@ describe("RemoveJoins", () => {
     });
 
 
-    it("test #24", () => {
+    it("test #67", () => {
         testCleaner({
             dirty: `
                 select
@@ -1028,7 +1095,7 @@ describe("RemoveJoins", () => {
     });
 
 
-    it("test #25", () => {
+    it("test #68", () => {
         testCleaner({
             dirty: `
                 select
@@ -1054,7 +1121,7 @@ describe("RemoveJoins", () => {
     });
 
 
-    it("test #26", () => {
+    it("test #69", () => {
         testCleaner({
             dirty: `
                 select
@@ -1082,7 +1149,7 @@ describe("RemoveJoins", () => {
     });
 
 
-    it("test #27", () => {
+    it("test #70", () => {
         testCleaner({
             dirty: `
                 select
@@ -1108,7 +1175,7 @@ describe("RemoveJoins", () => {
     });
 
 
-    it("test #28", () => {
+    it("test #71", () => {
         testCleaner({
             dirty: `
                 select
@@ -1128,7 +1195,7 @@ describe("RemoveJoins", () => {
     });
 
 
-    it("test #29", () => {
+    it("test #72", () => {
         testCleaner({
             dirty: `
                 select
@@ -1148,7 +1215,7 @@ describe("RemoveJoins", () => {
     });
 
 
-    it("test #30", () => {
+    it("test #73", () => {
         testCleaner({
             dirty: `
                 select
@@ -1180,7 +1247,7 @@ describe("RemoveJoins", () => {
     });
 
 
-    it("test #31", () => {
+    it("test #74", () => {
         testCleaner({
             dirty: `
                 select
@@ -1203,7 +1270,7 @@ describe("RemoveJoins", () => {
     });
 
 
-    it("test #32", () => {
+    it("test #75", () => {
         testCleaner({
             clean: `
                 select
@@ -1233,7 +1300,7 @@ describe("RemoveJoins", () => {
     });
 
 
-    it("test #33", () => {
+    it("test #76", () => {
         testCleaner({
             dirty: `
                 select
@@ -1271,7 +1338,7 @@ describe("RemoveJoins", () => {
 
 
 
-    it("test #34", () => {
+    it("test #77", () => {
         testCleaner({
             clean: `
                 select
@@ -1296,7 +1363,7 @@ describe("RemoveJoins", () => {
     });
 
 
-    it("test #35", () => {
+    it("test #78", () => {
         testCleaner({
             dirty: `
                 select
@@ -1328,7 +1395,7 @@ describe("RemoveJoins", () => {
     });
 
 
-    it("test #36", () => {
+    it("test #79", () => {
         testCleaner({
             dirty: `
                 select from company
@@ -1357,7 +1424,7 @@ describe("RemoveJoins", () => {
     });
 
 
-    it("test #37", () => {
+    it("test #80", () => {
         testCleaner({
             clean: `
                 select CountryEnd.id
@@ -1373,7 +1440,7 @@ describe("RemoveJoins", () => {
     });
 
 
-    it("test #37.1", () => {
+    it("test #81", () => {
         testCleaner({
             clean: `
                 select CountryEnd.id
@@ -1395,7 +1462,7 @@ describe("RemoveJoins", () => {
         });
     });
 
-    it("test #38", () => {
+    it("test #82", () => {
         testCleaner({
             dirty: `
                 select from company
@@ -1413,7 +1480,7 @@ describe("RemoveJoins", () => {
     });
 
 
-    it("test #39", () => {
+    it("test #83", () => {
         testCleaner({
             dirty: `
                 select CountryEnd.id
@@ -1444,7 +1511,7 @@ describe("RemoveJoins", () => {
     });
 
 
-    it("test #40", () => {
+    it("test #84", () => {
         testCleaner({
             dirty: `
                 select CountryEnd.id
@@ -1473,7 +1540,7 @@ describe("RemoveJoins", () => {
     });
 
 
-    it("test #45", () => {
+    it("test #85", () => {
         testCleaner({
             dirty: `
                 select
@@ -1499,7 +1566,7 @@ describe("RemoveJoins", () => {
         });
     });
 
-    it("test #46", () => {
+    it("test #86", () => {
         testCleaner({
             clean: `
             select country_second.id
@@ -1514,7 +1581,7 @@ describe("RemoveJoins", () => {
     });
 
 
-    it("test #47", () => {
+    it("test #87", () => {
         testCleaner({
             dirty: `
                 select
@@ -1541,7 +1608,7 @@ describe("RemoveJoins", () => {
     });
 
 
-    it("test #48", () => {
+    it("test #88", () => {
         testCleaner({
             clean: `
             select 
@@ -1557,7 +1624,7 @@ describe("RemoveJoins", () => {
     });
 
 
-    it("test #49", () => {
+    it("test #89", () => {
         testCleaner({
             clean: `
             select 
@@ -1573,7 +1640,7 @@ describe("RemoveJoins", () => {
         });
     });
 
-    it("test #50", () => {
+    it("test #90", () => {
         testCleaner({
             clean: `
             select 
@@ -1590,7 +1657,7 @@ describe("RemoveJoins", () => {
     });
 
 
-    it("test #51", () => {
+    it("test #91", () => {
         testCleaner({
             clean: `
             select
@@ -1608,7 +1675,7 @@ describe("RemoveJoins", () => {
     });
 
 
-    it("test #52", () => {
+    it("test #92", () => {
         testCleaner({
             clean: `
             select
@@ -1626,7 +1693,7 @@ describe("RemoveJoins", () => {
     });
 
 
-    it("test #53", () => {
+    it("test #93", () => {
         testCleaner({
             clean: `
             select
@@ -1644,7 +1711,7 @@ describe("RemoveJoins", () => {
 
 
 
-    it("test #54", () => {
+    it("test #94", () => {
         testCleaner({
             clean: `
             select
@@ -1661,7 +1728,7 @@ describe("RemoveJoins", () => {
     });
 
 
-    it("test #55", () => {
+    it("test #95", () => {
         testCleaner({
             clean: `
             select 
@@ -1679,7 +1746,7 @@ describe("RemoveJoins", () => {
     });
 
 
-    it("test #56", () => {
+    it("test #96", () => {
         testCleaner({
             clean: `
             select totals.count
@@ -1695,7 +1762,7 @@ on country.id = company.id_country
     });
 
 
-    it("test #57", () => {
+    it("test #97", () => {
         testCleaner({
             clean: `
             select next_country.code
@@ -1710,7 +1777,7 @@ on country.id = company.id_country
     });
 
 
-    it("test #58", () => {
+    it("test #98", () => {
         testCleaner({
             clean: `
                 select *
@@ -1725,7 +1792,7 @@ on country.id = company.id_country
     });
 
 
-    it("test #59", () => {
+    it("test #99", () => {
         testCleaner({
             clean: `
                 select country.code
@@ -1740,7 +1807,7 @@ on country.id = company.id_country
     });
 
 
-    it("test #60", () => {
+    it("test #100", () => {
         testCleaner({
             dirty: `
                 select country.code
@@ -1762,50 +1829,7 @@ on country.id = company.id_country
     });
 
 
-    // it("test #61", () => {
-    //     testCleaner({
-    //         dirty: `
-    //             select company.inn
-    //             from company
-
-    //             left join country
-    //                 inner join country as next_country
-    //                 on next_country.id = (country.id + 1)
-    //             on country.id = company.id_country
-    //                 `,
-    //         clean: `
-    //             select company.inn
-    //             from company
-    //             `
-    //     });
-    // });
-
-
-
-
-    // it("test #62", () => {
-    //     testCleaner({
-    //         dirty: `
-    //             select company.inn
-    //             from company
-
-    //             left join country
-    //                 left join country as country2
-    //                 on country2.id = (country.id + 1)
-
-    //                 inner join country as country3
-    //                 on country3.id = (country2.id + 1)
-    //             on country.id = company.id_country
-    //                 `,
-    //         clean: `
-    //             select company.inn
-    //             from company
-    //             `
-    //     });
-    // });
-
-
-    it("test #63", () => {
+    it("test #101", () => {
         testCleaner({
             clean: `
                 select country2.code
@@ -1823,7 +1847,7 @@ on country.id = company.id_country
     });
 
 
-    it("test #64", () => {
+    it("test #102", () => {
         testCleaner({
             clean: `
                 select country4.code
@@ -1843,31 +1867,7 @@ on country.id = company.id_country
     });
 
 
-    // it("test #65", () => {
-    //     testCleaner({
-    //         dirty: `
-    //             select company.id
-    //             from company
-
-    //             left join country
-    //                 left join country as country2
-    //                 on country2.id = (country.id + 1)
-
-    //                 inner join country as country3
-    //                     left join country as country4
-    //                     on country4.id = country2.id
-    //                 on country3.id = (country2.id + 1)
-    //             on country.id = company.id_country
-    //                 `,
-    //         clean: `
-    //             select company.id
-    //             from company
-    //             `
-    //     });
-    // });
-
-
-    it("test #66", () => {
+    it("test #103", () => {
         testCleaner({
             dirty: `
                 select country4.code
@@ -1898,7 +1898,7 @@ on country.id = company.id_country
     });
 
 
-    it("test #67", () => {
+    it("test #104", () => {
         testCleaner({
             clean: `
                 select country4.code
@@ -1918,7 +1918,7 @@ on country.id = company.id_country
     });
 
 
-    it("test #68", () => {
+    it("test #105", () => {
         testCleaner({
             clean: `
                 select test_with_values.*
@@ -1942,7 +1942,7 @@ on country.id = company.id_country
     });
 
 
-    it("test #69", () => {
+    it("test #106", () => {
         testCleaner({
             dirty: `
                 select company.id
@@ -1970,45 +1970,7 @@ on country.id = company.id_country
     });
 
 
-    // it("test #70", () => {
-    //     testCleaner({
-    //         dirty: `
-    //             select test_with_values.*
-    //             from company
-
-    //             left join country on
-    //                 country.id = company.id_country
-
-    //             left join lateral (
-    //                 with x as (
-    //                     values ((
-    //                         select company.id
-    //                     ))
-    //                 )
-    //                 select *
-    //                 from x
-    //                 limit 1
-    //             ) as test_with_values on true
-    //                 `,
-    //         clean: `
-    //             select test_with_values.*
-    //             from company
-
-    //             left join lateral (
-    //                 with x as (
-    //                     values ((
-    //                         select company.id
-    //                     ))
-    //                 )
-    //                 select *
-    //                 from x
-    //                 limit 1
-    //             ) as test_with_values on true
-    //             `
-    //     });
-    // });
-
-    it("test #71", () => {
+    it("test #107", () => {
         testCleaner({
             clean: `
                 select
@@ -2017,7 +1979,7 @@ on country.id = company.id_country
     });
 
 
-    it("test #72", () => {
+    it("test #108", () => {
         testCleaner({
             clean: `
                 select
@@ -2030,7 +1992,7 @@ on country.id = company.id_country
     });
 
 
-    it("test #73", () => {
+    it("test #109", () => {
         testCleaner({
             clean: `
                 select
@@ -2042,7 +2004,7 @@ on country.id = company.id_country
         });
     });
 
-    it("test #74", () => {
+    it("test #110", () => {
         testCleaner({
             dirty: `
                 select
@@ -2070,7 +2032,7 @@ on country.id = company.id_country
         });
     });
     
-    it("test #75", () => {
+    it("test #111", () => {
         testCleaner({
             clean: `
                 select
@@ -2080,7 +2042,7 @@ on country.id = company.id_country
     });
     
     
-    it("test #76", () => {
+    it("test #112", () => {
         testCleaner({
             dirty: `
                 select 
@@ -2105,7 +2067,7 @@ on country.id = company.id_country
         });
     });
     
-    it("test #77", () => {
+    it("test #113", () => {
         testCleaner({
             clean: `
                 select distinct on (countries.code)
@@ -2119,7 +2081,7 @@ on country.id = company.id_country
         });
     });
     
-    it("test #78", () => {
+    it("test #114", () => {
         testCleaner({
             dirty: `
                 select distinct on (1)
@@ -2138,7 +2100,7 @@ on country.id = company.id_country
         });
     });
 
-    it("test #79", () => {
+    it("test #115", () => {
         testCleaner({
             clean: `
                 select distinct on (1)
@@ -2154,7 +2116,7 @@ on country.id = company.id_country
         });
     });
 
-    it("test #79", () => {
+    it("test #116", () => {
         testCleaner({
             dirty: `
                 select from companies
@@ -2173,7 +2135,7 @@ on country.id = company.id_country
         });
     });
 
-    it("test #80", () => {
+    it("test #117", () => {
         testCleaner({
             dirty: `
                 select from companies
@@ -2192,7 +2154,7 @@ on country.id = company.id_country
         });
     });
 
-    it("test #81", () => {
+    it("test #118", () => {
         testCleaner({
             dirty: `
                 select from companies
@@ -2211,7 +2173,7 @@ on country.id = company.id_country
         });
     });
 
-    it("test #82", () => {
+    it("test #119", () => {
         testCleaner({
             dirty: `
                 select from companies
@@ -2230,7 +2192,7 @@ on country.id = company.id_country
         });
     });
 
-    it("test #83", () => {
+    it("test #120", () => {
         testCleaner({
             dirty: `
                 select from companies
@@ -2249,7 +2211,7 @@ on country.id = company.id_country
         });
     });
 
-    it("test #84", () => {
+    it("test #121", () => {
         testCleaner({
             clean: `
                 select from companies
@@ -2267,7 +2229,7 @@ on country.id = company.id_country
         });
     });
 
-    it("test #85", () => {
+    it("test #122", () => {
         testCleaner({
             dirty: `
                 select from companies
@@ -2289,7 +2251,7 @@ on country.id = company.id_country
         });
     });
 
-    it("test #86", () => {
+    it("test #123", () => {
         testCleaner({
             dirty: `
                 select from companies
@@ -2303,7 +2265,7 @@ on country.id = company.id_country
         });
     });
 
-    it("test #87", () => {
+    it("test #124", () => {
         testCleaner({
             dirty: `
                 select from companies
@@ -2317,7 +2279,7 @@ on country.id = company.id_country
         });
     });
 
-    it("test #88", () => {
+    it("test #125", () => {
         testCleaner({
             clean: `
                 select from companies
