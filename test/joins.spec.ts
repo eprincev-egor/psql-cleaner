@@ -2154,4 +2154,117 @@ on country.id = company.id_country
         });
     });
 
+    it("test #79", () => {
+        testCleaner({
+            dirty: `
+                select from companies
+
+                left join lateral (
+                    select 
+                        string_agg( orders.numb )
+                    from orders
+                    where
+                        orders.id_company = companies.id
+                ) as totals on true
+                `,
+            clean: `
+                select from companies
+            `
+        });
+    });
+
+    it("test #80", () => {
+        testCleaner({
+            dirty: `
+                select from companies
+
+                left join lateral (
+                    select 
+                        array_agg( orders.numb )
+                    from orders
+                    where
+                        orders.id_company = companies.id
+                ) as totals on true
+                `,
+            clean: `
+                select from companies
+            `
+        });
+    });
+
+    it("test #81", () => {
+        testCleaner({
+            dirty: `
+                select from companies
+
+                left join lateral (
+                    select 
+                        count( * )
+                    from orders
+                    where
+                        orders.id_company = companies.id
+                ) as totals on true
+                `,
+            clean: `
+                select from companies
+            `
+        });
+    });
+
+    it("test #82", () => {
+        testCleaner({
+            dirty: `
+                select from companies
+
+                left join lateral (
+                    select 
+                        max( orders.date )
+                    from orders
+                    where
+                        orders.id_company = companies.id
+                ) as totals on true
+                `,
+            clean: `
+                select from companies
+            `
+        });
+    });
+
+    it("test #83", () => {
+        testCleaner({
+            dirty: `
+                select from companies
+
+                left join lateral (
+                    select 
+                        min( orders.date )
+                    from orders
+                    where
+                        orders.id_company = companies.id
+                ) as totals on true
+                `,
+            clean: `
+                select from companies
+            `
+        });
+    });
+
+    it("test #84", () => {
+        testCleaner({
+            clean: `
+                select from companies
+
+                left join lateral (
+                    select 
+                        min( orders.date )
+                    from orders
+                    where
+                        orders.id_company = companies.id
+                    
+                    group by orders.category
+                ) as totals on true
+                `
+        });
+    });
+
 });

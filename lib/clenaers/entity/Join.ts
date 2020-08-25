@@ -4,7 +4,10 @@ import {
     Expression, 
     FromItem,
     ColumnLink,
-    TableLink
+    TableLink,
+    FunctionCall,
+    FunctionLink,
+    ObjectName
 } from "grapeql-lang";
 import { JoinCondition } from "./JoinCondition";
 import { Column } from "./Column";
@@ -169,6 +172,9 @@ function selectReturnsOnlyOneRow(select: Select): boolean {
 
     const hasUnion = !!select.get("union");
 
+    const hasAggFuncs = hasAggFunc(select);
+    const hasGroupBy = !!select.get("groupBy");
+
     const returnsOnlyOneRow = (
         // "select ... limit 1"
         hasLimit_1 
@@ -178,6 +184,34 @@ function selectReturnsOnlyOneRow(select: Select): boolean {
         ||
         // select ... from ( select ... limit 1 )
         everyFromItemIsSubQueryWithOnlyOneRow && !hasUnion
+        ||
+        hasAggFuncs && !hasGroupBy
     );
     return returnsOnlyOneRow;
+}
+
+const aggFuncs = [
+    "count",
+    "array_agg",
+    "string_agg",
+    "max",
+    "min"
+];
+function hasAggFunc(select: Select): boolean {
+    const columns = select.get("columns") || [];
+
+    const hasAggFuncInSomeColumn = columns.some(column => {
+        const funcCalls = column.filterChildrenByInstance(FunctionCall);
+        const hasAggCall = funcCalls.some(funcCall => {
+            const funcNameLink = funcCall.get("function") as FunctionLink;
+            const funcNameSyntax = funcNameLink.last() as ObjectName;
+            const funcName = funcNameSyntax.toLowerCase() as string;
+
+            const isAgg = aggFuncs.includes(funcName);
+            return isAgg;
+        });
+        return hasAggCall;
+    });
+    
+    return hasAggFuncInSomeColumn;
 }
