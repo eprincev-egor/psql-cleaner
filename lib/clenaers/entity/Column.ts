@@ -1,6 +1,13 @@
 import { ObjectName, ColumnLink, FromItem, TableLink, Select } from "grapeql-lang";
 import { Table } from "./Table";
 
+// select *
+// select table.*
+// select column
+// select table.column
+// select schema.table.column
+// select ... (select column)
+
 export class Column {
     private hasStar: boolean;
     private table?: Table;
@@ -13,7 +20,7 @@ export class Column {
 
         if ( this.route.length === 1 && ! this.hasStar ) {
             const parentSelect = columnLink.findParentInstance(Select);
-            const fromItems = parentSelect.get("from") as FromItem[];
+            const fromItems = parentSelect.get("from") || [];
             const firstFrom = fromItems[0];
 
             if ( firstFrom ) {
@@ -72,11 +79,15 @@ export class Column {
             );
             return isColumnFromThatAlias;
         }
+
+        const thatTable = this.table as Table;
+        if ( !thatTable ) {
+            return true;
+        }
     
         const fromTableLink = fromItem.get("table") as TableLink;
         const fromTable = new Table(fromTableLink);
 
-        const thatTable = this.table as Table;
         const isColumnFromThatTable = fromTable.equal(thatTable);
         return isColumnFromThatTable;
     }

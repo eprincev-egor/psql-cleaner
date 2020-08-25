@@ -2317,4 +2317,30 @@ on country.id = company.id_country
         });
     });
 
+    it("test #88", () => {
+        testCleaner({
+            clean: `
+                select from companies
+                
+                left join settings on
+                    settings.id = 1
+
+                left join lateral (
+                    select
+                        some_settings_field
+                ) as tmp on true
+
+                left join some_table on
+                    some_table.id = 1
+                
+                where
+                    settings.some is not null
+                    or
+                    some_table.some is not null
+                    or
+                    tmp.some_settings_field is not null
+            `
+        });
+    });
+
 });
