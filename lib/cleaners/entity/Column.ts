@@ -1,5 +1,4 @@
 import { ObjectName, ColumnLink, FromItem, TableLink, Select } from "grapeql-lang";
-import { Table } from "./Table";
 
 // select *
 // select table.*
@@ -9,87 +8,134 @@ import { Table } from "./Table";
 // select ... (select column)
 
 export class Column {
-    private hasStar: boolean;
-    private table?: Table;
-    private route: ObjectName[];
+    private star: boolean;
+    private schema?: ObjectName;
+    private table?: ObjectName;
     private name?: ObjectName;
 
     constructor(columnLink: ColumnLink) {
-        this.route = columnLink.get("link") as ObjectName[];
-        this.hasStar = columnLink.isStar() as boolean;
+        this.star = columnLink.isStar() as boolean;
 
-        if ( this.route.length === 1 && ! this.hasStar ) {
-            const parentSelect = columnLink.findParentInstance(Select);
-            const fromItems = parentSelect.get("from") || [];
-            const firstFrom = fromItems[0];
-
-            if ( firstFrom ) {
-                const firstFromAlias = firstFrom.get("as");
-                if ( firstFromAlias ) {
-                    this.route.unshift(firstFromAlias);
-                }
-                else {
-                    const firstFromTable = firstFrom.get("table") as TableLink;
-                    const firstFromTableRoute = firstFromTable.get("link") as ObjectName[];
-                    this.route = [...firstFromTableRoute, ...this.route];
-                }
+        const link = columnLink.get("link") as ObjectName[];
+        
+        // select *
+        // select table.*
+        // select schema.table.*
+        if ( this.star ) {
+            // select table.*
+            if ( link.length === 1 ) {
+                this.table = link[0];
+            }
+            // select schema.table.*
+            else if ( link.length === 2 ) {
+                this.schema = link[0];
+                this.table = link[1];
             }
         }
-        
-        if ( !this.hasStar ) {
-            this.name = columnLink.last();
-        }
-
-        let tableRoute;
-        if ( this.hasStar ) {
-            tableRoute = this.route;
-        }
+        // select column
+        // select table.column
+        // select schema..table.column
         else {
-            tableRoute = this.route.slice(0, -1);
-        }
-        if ( tableRoute.length > 0 ) {
-            const tableLink = new TableLink({
-                link: tableRoute
-            });
-            this.table = new Table(tableLink);
+            // select column
+            if ( link.length === 1 ) {
+                this.name = link[0];
+
+                // get schema and table from select
+                const parentSelect = columnLink.findParentInstance(Select);
+                const fromItems = parentSelect.get("from") || [];
+                const firstFrom = fromItems[0];
+
+                if ( firstFrom ) {
+                    const firstFromAlias = firstFrom.get("as");
+                    if ( firstFromAlias ) {
+                        this.table = firstFromAlias;
+                    }
+                    else {
+                        const firstFromTable = firstFrom.get("table") as TableLink;
+                        const firstFromTableLink = firstFromTable.get("link") as ObjectName[];
+                        
+                        // from table
+                        if ( firstFromTableLink.length === 1 ) {
+                            this.table = firstFromTableLink[0];
+                        }
+                        // from schema.table
+                        else {
+                            this.schema = firstFromTableLink[0];
+                            this.table = firstFromTableLink[1];
+                        }
+                    }
+                }
+            }
+            // select table.column
+            else if ( link.length === 2 ) {
+                this.table = link[0];
+                this.name = link[1];
+            }
+            // select schema.table.column
+            else if ( link.length === 3 ) {
+                this.schema = link[0];
+                this.table = link[1];
+                this.name = link[2];
+            }
         }
     }
 
     from(fromItem: FromItem) {
         const alias = fromItem.get("as");
-        let columnTableLink = this.route.slice(0, -1);
-    
-        if ( this.hasStar ) {
-            // select *
-            if ( this.route.length === 0 ) {
-                return true;
-            }
-            
-            columnTableLink = this.route;
+
+        // select *
+        if ( this.star && !this.table ) {
+            return true;
         }
-        
+    
         if ( alias ) {
-            if ( columnTableLink.length !== 1 ) {
+            if ( this.schema ) {
                 return false;
             }
     
-            const columnTableName = this.route[0];
+            const thisAlias = this.table as ObjectName;
             const isColumnFromThatAlias = (
-                columnTableName.equal(alias)
+                thisAlias.toLowerCase() === alias.toLowerCase()
             );
             return isColumnFromThatAlias;
         }
 
-        const thatTable = this.table as Table;
+        const thatSchema = this.schema;
+        const thatTable = this.table;
+
+        // select column
         if ( !thatTable ) {
             return true;
         }
-    
-        const fromTableLink = fromItem.get("table") as TableLink;
-        const fromTable = new Table(fromTableLink);
 
-        const isColumnFromThatTable = fromTable.equal(thatTable);
-        return isColumnFromThatTable;
+        const fromTableLinkSyntax = fromItem.get("table") as TableLink;
+        const fromTableLink = fromTableLinkSyntax.get("link") as ObjectName[];
+
+        let fromSchema: ObjectName | undefined;
+        let fromTable!: ObjectName;
+
+        if ( fromTableLink.length === 2 ) {
+            fromSchema = fromTableLink[0];
+            fromTable = fromTableLink[1];
+        }
+        else {
+            fromTable = fromTableLink[0];
+        }
+
+
+        if ( thatSchema && fromSchema ) {
+            const isColumnFromThatTable = (
+                thatSchema.toLowerCase() === fromSchema.toLowerCase() &&
+                thatTable.toLowerCase() === fromTable.toLowerCase()
+            );
+            return isColumnFromThatTable;
+        }
+        else {
+            const isColumnFromThatTable = (
+                thatTable.toLowerCase() === fromTable.toLowerCase()
+            );
+            return isColumnFromThatTable;
+        }
     }
 
     getName() {

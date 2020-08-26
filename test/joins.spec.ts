@@ -2305,4 +2305,82 @@ on country.id = company.id_country
         });
     });
 
+    it("test #126", () => {
+        testCleaner({
+            dirty: `
+                select from companies
+                
+                left join operation.settings on
+                    settings.id = 1
+            `,
+            clean: `
+                select from companies
+            `
+        });
+    });
+
+    it("test #127", () => {
+        testCleaner({
+            dirty: `
+                select from companies
+                
+                left join settings on
+                    public.settings.id = 1
+            `,
+            clean: `
+                select from companies
+            `
+        });
+    });
+
+    it("test #128", () => {
+        testCleaner({
+            dirty: `
+                select 
+                    (
+                        select id
+                        from public.y as y
+                    )
+                from x
+
+                left join z on 
+                    z.id = 1
+            
+                `,
+            clean: `
+                select 
+                    (
+                        select id
+                        from public.y as y
+                    )
+                from x
+            `
+        });
+    });
+
+    it("test #129", () => {
+        testCleaner({
+            dirty: `
+                select 
+                    (
+                        select id
+                        from public.y
+                    )
+                from x
+
+                left join z on 
+                    z.id = 1
+            
+                `,
+            clean: `
+                select 
+                    (
+                        select id
+                        from public.y
+                    )
+                from x
+            `
+        });
+    });
+
 });
